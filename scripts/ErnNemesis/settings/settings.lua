@@ -126,10 +126,30 @@ local function globalInit()
             default = true,
             renderer = "checkbox"
         }, {
-            key = "equipmentScaling",
-            name = "equipmentScaling_name",
-            description = "equipmentScaling_description",
-            default = 3,
+            key = "weaponScaling",
+            name = "weaponScaling_name",
+            description = "weaponScaling_description",
+            default = 10,
+            renderer = "number",
+            argument = {
+                integer = true,
+                min = 0
+            }
+        }, {
+            key = "armorScaling",
+            name = "armorScaling_name",
+            description = "armorScaling_description",
+            default = 10,
+            renderer = "number",
+            argument = {
+                integer = true,
+                min = 0
+            }
+        }, {
+            key = "consumableScaling",
+            name = "consumableScaling_name",
+            description = "consumableScaling_description",
+            default = 15,
             renderer = "number",
             argument = {
                 integer = true,

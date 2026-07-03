@@ -293,11 +293,11 @@ end
 ---@field oldGear string[]
 ---@field weaponSkill string?
 ---@field armorSkill string?
----@field points number
+---@field totalKills number
 
 local function handleGear(oldKills, newKills)
     -- hand this all off to the global script
-    if settings.gameplay.equipmentScaling > 0 then
+    if settings.gameplay.weaponScaling > 0 or settings.gameplay.armorScaling or settings.gameplay.consumableScaling > 0 then
         local itemsByID = {}
         for _, item in ipairs(pself.type.inventory(pself):getAll()) do
             itemsByID[item.id] = item
@@ -315,7 +315,7 @@ local function handleGear(oldKills, newKills)
             oldGear = oldGear,
             weaponSkill = getBestWeaponSkill(),
             armorSkill = getBestArmorSkill(),
-            points = settings.gameplay.equipmentScaling * newKills
+            totalKills = newKills,
         }
 
         core.sendGlobalEvent(MOD_NAME .. "onUpgradeGear", data)
@@ -353,12 +353,21 @@ local function onUpgradeGearCompleted(data)
     for _, id in ipairs(data.newConsumableIDs) do
         table.insert(newIDs, id)
     end
-    persist.gearIDs = newIDs
-    --- equip the new gear
+    -- equip!
     pself.type.setEquipment(pself, equipped)
+
+    -- consumables, too!
+    for _, id in ipairs(data.newConsumableIDs) do
+        table.insert(newIDs, id)
+    end
+
+    persist.gearIDs = newIDs
 end
 
 local function onActive()
+    if settings.admin.disable then
+        return
+    end
     if pself.object:isValid() and not types.Actor.isDead(pself.object) then
         core.sendGlobalEvent(MOD_NAME .. "onActive",
             { actor = pself.object, kills = persist.kills })
@@ -366,6 +375,9 @@ local function onActive()
 end
 
 local function onDied()
+    if settings.admin.disable then
+        return
+    end
     core.sendGlobalEvent(MOD_NAME .. "onNemesisDied",
         { actor = pself.object, kills = persist.kills })
 end
@@ -382,7 +394,7 @@ local function onKillCountUpdate(data)
 
     if settings.gameplay.levelScaling then
         local levelStat = pself.type.stats.level(pself)
-        levelStat.current = levelStat.current + 1
+        levelStat.current = levelStat.current + (data.kills - persist.kills)
         settings.debugPrint(getRecord(pself.object).name ..
             " leveled up to " ..
             tostring(levelStat.current))

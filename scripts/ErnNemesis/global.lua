@@ -108,16 +108,24 @@ local function onUpgradeGear(data)
 
     local inventory = types.Actor.inventory(data.actor)
 
-    local rightHandItem = types.Actor.getEquipment(data.actor, types.Actor.EQUIPMENT_SLOT.CarriedRight)
-    if rightHandItem then
-        local rightHandRecord = getRecord(rightHandItem)
-        local rightHandScore = itemutil.weaponValue(rightHandRecord)
-        local betterItemRecord = itemutil.getWeaponWithScore(rightHandRecord.type, rightHandScore + data.points)
-        if rightHandRecord.id ~= betterItemRecord.id then
-            local newItemInstance = world.createObject(betterItemRecord.id)
-            newItemInstance:moveInto(inventory)
-            newData.newIDsBySlot[types.Actor.EQUIPMENT_SLOT.CarriedRight] = newItemInstance.id
+    local upgradeWeapon = function(slot)
+        local oldItem = types.Actor.getEquipment(data.actor, slot)
+        if oldItem then
+            local oldItemRecord = getRecord(oldItem)
+            local oldItemScore = itemutil.weaponValue(oldItemRecord)
+            local betterItemRecord = itemutil.getWeaponWithScore(oldItemRecord.type,
+                oldItemScore + (settings.gameplay.weaponScaling * data.totalKills))
+            if oldItemRecord.id ~= betterItemRecord.id then
+                local newItemInstance = world.createObject(betterItemRecord.id)
+                newItemInstance:moveInto(inventory)
+                newData.newIDsBySlot[slot] = newItemInstance.id
+            end
         end
+    end
+
+    if settings.gameplay.weaponScaling > 0 then
+        upgradeWeapon(types.Actor.EQUIPMENT_SLOT.CarriedRight)
+        upgradeWeapon(types.Actor.EQUIPMENT_SLOT.Ammunition)
     end
 
     data.actor:sendEvent(MOD_NAME .. "onUpgradeGearCompleted", newData)
