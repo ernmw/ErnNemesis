@@ -27,14 +27,16 @@ end
 local adminGroupKey = groupKey("Admin")
 local uiGroupKey    = groupKey("UI")
 
-local function init()
+local function playerInit()
     interfaces.Settings.registerPage {
         key = MOD_NAME,
         l10n = MOD_NAME,
         name = "name",
         description = "description"
     }
+end
 
+local function globalInit()
     interfaces.Settings.registerGroup {
         key = adminGroupKey,
         l10n = MOD_NAME,
@@ -115,6 +117,15 @@ end
 
 local lookupFuncTable = {
     __index = function(table, key)
+        if not table.section then
+            table.section = storage.globalSection(table.groupKey)
+            table.cached = table.section:asTable()
+
+            table.section.subscribe(async:callback(function(_, key)
+                table.cached[key] = table.section:get(key)
+            end))
+        end
+
         if key == "subscribe" then
             return function(callback)
                 print("Subscribed to " .. tostring(table.groupKey) .. ".")
@@ -138,22 +149,14 @@ local lookupFuncTable = {
     end,
 }
 
+--- lazilly-inited cached settings container
 ---@param groupKeyParam string
 ---@return table
 local function newContainer(groupKeyParam)
     local container = {
         groupKey = groupKeyParam,
-        section = storage.playerSection(groupKeyParam),
-        cached = {}
     }
-    container.cached = container.section:asTable()
-
     setmetatable(container, lookupFuncTable)
-
-    container.subscribe(async:callback(function(_, key)
-        container.cached[key] = container.section:get(key)
-    end))
-
     return container
 end
 
@@ -174,13 +177,15 @@ end
 ---@alias SettingContainer table
 
 ---@class Settings
----@field init fun()
+---@field playerInit fun()
+---@field globalInit fun()
 ---@field admin SettingContainer
 ---@field gameplay SettingContainer
 
 ---@type Settings
 return {
-    init = init,
+    playerInit = playerInit,
+    globalInit = globalInit,
     gameplay = gameplayContainer,
     admin = adminContainer,
     debugPrint = debugPrint,

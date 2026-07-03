@@ -1,4 +1,5 @@
 MENU: scripts/ErnNemesis/settings/menu_settings.lua
+GLOBAL: scripts/ErnNemesis/settings/global_settings.lua
 
 PLAYER: scripts/ErnNemesis/player.lua
 GLOBAL: scripts/ErnNemesis/global.lua

@@ -19,7 +19,6 @@ local core       = require('openmw.core')
 local types      = require('openmw.types')
 local pself      = require('openmw.self')
 local async      = require('openmw.async')
-local settings   = require("scripts.ErnNemesis.settings.settings")
 local MOD_NAME   = require("scripts.ErnNemesis.ns")
 local interfaces = require('openmw.interfaces')
 local storage    = require('openmw.storage')
@@ -40,7 +39,6 @@ end
 local combatTracker = {}
 
 local clearCombatant = async:registerTimerCallback('clearCombatant', function(id)
-    settings.debugPrint("combat ended with " .. tostring(id))
     combatTracker[id] = nil
 end)
 
@@ -49,7 +47,6 @@ local function OMWMusicCombatTargetsChanged(incomingTargetData)
         -- delay removal.
         async:newSimulationTimer(2, clearCombatant, incomingTargetData.actor.id)
     else
-        settings.debugPrint("combat started with " .. tostring(incomingTargetData.actor.id))
         combatTracker[incomingTargetData.actor.id] = incomingTargetData.actor
     end
 end
@@ -67,8 +64,6 @@ local function onDied()
             table.insert(opponents, actor.id)
         end
     end
-
-    settings.debugPrint("onDied called. Current combatants: " .. aux_util.deepToString(combatTracker))
     core.sendGlobalEvent(MOD_NAME .. "onPlayerDied", {
         player = pself.object,
         opponents = opponents,

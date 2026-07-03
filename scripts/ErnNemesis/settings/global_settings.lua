@@ -18,4 +18,4 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 local settings = require("scripts.ErnNemesis.settings.settings")
 
 -- This is run early and is attached to MENU.
-settings.playerInit()
+settings.globalInit()
