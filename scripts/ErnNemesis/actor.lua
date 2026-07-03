@@ -24,6 +24,7 @@ local interfaces = require('openmw.interfaces')
 local storage    = require('openmw.storage')
 local nearby     = require('openmw.nearby')
 local aux_util   = require('openmw_aux.util')
+local settings   = require("scripts.ErnNemesis.settings.settings")
 
 -- shouldn't pull in global storage in non-global contexts.
 --local nemesisData = storage.globalSection(MOD_NAME .. "NemesisData")
@@ -31,6 +32,34 @@ local aux_util   = require('openmw_aux.util')
 local persist    = {
     kills = 0
 }
+
+local function increaseDynamicStat(stat, oldKills, newKills)
+    local buff = (newKills - oldKills) * 5
+    settings.debugPrint("increase stat by " .. tostring(buff))
+    stat.base = math.max(stat.base, stat.base + buff)
+    stat.current = math.max(stat.current, stat.current + buff)
+end
+
+local function buffHealth(actor, oldKills, newKills)
+    if settings.gameplay.healthScaling then
+        local stat = actor.type.stats.dynamic.health(actor)
+        increaseDynamicStat(stat, oldKills, newKills)
+    end
+end
+
+local function buffFatigue(actor, oldKills, newKills)
+    if settings.gameplay.healthScaling then
+        local stat = actor.type.stats.dynamic.fatigue(actor)
+        increaseDynamicStat(stat, oldKills, newKills)
+    end
+end
+
+local function buffMagicka(actor, oldKills, newKills)
+    if settings.gameplay.healthScaling then
+        local stat = actor.type.stats.dynamic.magicka(actor)
+        increaseDynamicStat(stat, oldKills, newKills)
+    end
+end
 
 local function getRecord(obj)
     return obj.type.record(obj)
@@ -49,6 +78,10 @@ local function onDied()
 end
 
 local function onKillCountUpdate(data)
+    buffHealth(pself, persist.kills, data.kills)
+    buffFatigue(pself, persist.kills, data.kills)
+    buffMagicka(pself, persist.kills, data.kills)
+
     persist.kills = data.kills
 end
 

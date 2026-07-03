@@ -21,6 +21,7 @@ local storage    = require('openmw.storage')
 local world      = require('openmw.world')
 local types      = require('openmw.types')
 local aux_util   = require('openmw_aux.util')
+local settings   = require("scripts.ErnNemesis.settings.settings")
 
 local function getRecord(obj)
     return obj.type.record(obj)
@@ -33,7 +34,7 @@ end
 local nemesisData = storage.globalSection(MOD_NAME .. "NemesisData")
 
 local function onActive(data)
-    print("Global onActive: " .. aux_util.deepToString(data, 3))
+    settings.debugPrint("Global onActive: " .. aux_util.deepToString(data, 3))
 
     local kills = 0
     for _, player in ipairs(world.players) do
@@ -43,8 +44,8 @@ local function onActive(data)
         end
     end
 
-    if kills ~= data.kills then
-        --- TODO: some buffs must be applied here
+    if kills > data.kills then
+        --- some buffs must be applied in global context
 
         --- Persist kill count on actor
         data.actor:sendEvent(MOD_NAME .. "onKillCountUpdate", { kills = kills })
@@ -52,33 +53,33 @@ local function onActive(data)
 end
 
 local function onNemesisDied(data)
-    print("Global onNemesisDied: " .. aux_util.deepToString(data, 3))
+    settings.debugPrint("Global onNemesisDied: " .. aux_util.deepToString(data, 3))
     for _, player in ipairs(world.players) do
         local key = getRecord(player).name
         local snapshot = nemesisData:asTable()[key]
         if snapshot[data.actor.id] then
             snapshot[data.actor.id] = nil
         end
-        print("New nemesis data: " .. aux_util.deepToString(snapshot, 3))
+        settings.debugPrint("New nemesis data: " .. aux_util.deepToString(snapshot, 3))
         nemesisData:set(key, snapshot)
     end
 end
 
 local function onPlayerDied(data)
-    print("Global onPlayerDied: " .. aux_util.deepToString(data, 3))
+    settings.debugPrint("Global onPlayerDied: " .. aux_util.deepToString(data, 3))
     local key = getRecord(data.player).name
     local snapshot = nemesisData:asTable()[key] or {}
-    print("Old nemesis data: " .. aux_util.deepToString(snapshot, 3))
+    settings.debugPrint("Old nemesis data: " .. aux_util.deepToString(snapshot, 3))
     for _, opponent in ipairs(data.opponents) do
         local originalCount = snapshot[opponent] or 0
         snapshot[opponent] = originalCount + 1
     end
-    print("New nemesis data: " .. aux_util.deepToString(snapshot, 3))
+    settings.debugPrint("New nemesis data: " .. aux_util.deepToString(snapshot, 3))
     nemesisData:set(key, snapshot)
 end
 
 local function onClearState()
-    print("Global onClearState.")
+    settings.debugPrint("Global onClearState.")
     nemesisData:reset()
 end
 

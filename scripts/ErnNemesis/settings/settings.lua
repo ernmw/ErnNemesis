@@ -24,8 +24,8 @@ local function groupKey(groupName)
     return 'Settings/' .. MOD_NAME .. '/' .. groupName
 end
 
-local adminGroupKey = groupKey("Admin")
-local uiGroupKey    = groupKey("UI")
+local adminGroupKey    = groupKey("Admin")
+local gameplayGroupKey = groupKey("Gameplay")
 
 local function playerInit()
     interfaces.Settings.registerPage {
@@ -61,7 +61,7 @@ local function globalInit()
     }
 
     interfaces.Settings.registerGroup {
-        key = uiGroupKey,
+        key = gameplayGroupKey,
         l10n = MOD_NAME,
         name = "modSettingsGameplayTitle",
         page = MOD_NAME,
@@ -117,11 +117,11 @@ end
 
 local lookupFuncTable = {
     __index = function(table, key)
-        if not table.section then
+        if not rawget(table, "section") then
             table.section = storage.globalSection(table.groupKey)
             table.cached = table.section:asTable()
 
-            table.section.subscribe(async:callback(function(_, key)
+            table.section:subscribe(async:callback(function(_, key)
                 table.cached[key] = table.section:get(key)
             end))
         end
@@ -160,7 +160,7 @@ local function newContainer(groupKeyParam)
     return container
 end
 
-local gameplayContainer = newContainer(uiGroupKey)
+local gameplayContainer = newContainer(gameplayGroupKey)
 local adminContainer = newContainer(adminGroupKey)
 
 local function debugPrint(str, ...)
