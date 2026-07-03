@@ -83,11 +83,31 @@ local function onClearState()
     nemesisData:reset()
 end
 
+
+---@class UpgradeGearCompletedData
+---@field newIDsBySlot {[string]: string}
+---@field newConsumableIDs string[]
+
+---@param data UpgradeGearData
+local function onUpgradeGear(data)
+    --- 1. delete the old gear
+    --- 2. spawn in new gear
+    --- 3. get the npc to equip it
+
+    ---@type UpgradeGearCompletedData
+    local newData = {
+        newIDsBySlot = {},
+        newConsumableIDs = {},
+    }
+    data.actor:sendEvent(MOD_NAME .. "onUpgradeGearCompleted", newData)
+end
+
 return {
     eventHandlers = {
         [MOD_NAME .. "onActive"] = onActive,
         [MOD_NAME .. "onPlayerDied"] = onPlayerDied,
         [MOD_NAME .. "onNemesisDied"] = onNemesisDied,
         [MOD_NAME .. "onClearState"] = onClearState,
+        [MOD_NAME .. "onUpgradeGear"] = onUpgradeGear,
     },
 }

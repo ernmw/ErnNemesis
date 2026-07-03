@@ -32,15 +32,11 @@ local shuffle    = require("scripts.ErnNemesis.shuffle")
 
 ---@class Persist
 ---@field kills number Number of persisted kills.
----@field weaponIDs string[] List of item IDs for weapons added by Nemesis.
----@field armorIDs string[] List of item IDs for armor pieces added by Nemesis.
----@field consumableIDs string[] List of item IDs for potions or scrolls added by Nemesis.
+---@field gearIDs string[] List of item IDs for items added by Nemesis.
 
 local persist    = {
     kills = 0,
-    weaponIDs = {},
-    armorIDs = {},
-    consumableIDs = {},
+    gearIDs = {},
 }
 
 local function getRecord(obj)
@@ -246,6 +242,7 @@ local function getBestArmorSkill()
         heavyarmor = pself.type.stats.skills.heavyarmor(pself),
         mediumarmor = pself.type.stats.skills.mediumarmor(pself),
         lightarmor = pself.type.stats.skills.lightarmor(pself),
+        unarmored = pself.type.stats.skills.unarmored(pself),
     }
     local skillName = nil
     local highestScore = -100
@@ -267,6 +264,7 @@ local function getBestWeaponSkill()
         marksman = pself.type.stats.skills.marksman(pself),
         shortblade = pself.type.stats.skills.shortblade(pself),
         spear = pself.type.stats.skills.spear(pself),
+        handtohand = pself.type.stats.skills.handtohand(pself),
     }
     local skillName = nil
     local highestScore = -100
@@ -279,6 +277,44 @@ local function getBestWeaponSkill()
     return skillName
 end
 
+---@class UpgradeGearData
+---@field actor table
+---@field oldGear string[]
+---@field weaponSkill string?
+---@field armorSkill string?
+---@field points number
+
+local function handleGear(oldKills, newKills)
+    -- step 1: delete the old nemesis gear we added
+    -- step 2: get new gear
+    if settings.gameplay.equipmentScaling > 0 then
+        ---@type UpgradeGearData
+        local data = {
+            actor = pself.object,
+            oldGear = persist.gearIDs,
+            weaponSkill = getBestWeaponSkill(),
+            armorSkill = getBestArmorSkill(),
+            points = settings.gameplay.equipmentScaling * newKills
+        }
+
+        core.sendGlobalEvent(MOD_NAME .. "onUpgradeGear", data)
+    end
+end
+
+---@param data UpgradeGearCompletedData
+local function onUpgradeGearCompleted(data)
+    --- this is called after global has inserted new gear
+    --- persist the new gear IDs so we can delete them later, if needed.
+    local newIDs = {}
+    for _, id in pairs(data.newIDsBySlot) do
+        table.insert(newIDs, id)
+    end
+    for _, id in ipairs(data.newConsumableIDs) do
+        table.insert(newIDs, id)
+    end
+    persist.gearIDs = newIDs
+    --- equip the new gear
+end
 
 local function onActive()
     if pself.object:isValid() and not types.Actor.isDead(pself.object) then
@@ -300,6 +336,7 @@ local function onKillCountUpdate(data)
     handleAttributes(persist.kills, data.kills)
     handleSkills(persist.kills, data.kills)
     handleSpells(persist.kills, data.kills)
+    handleGear(persist.kills, data.kills)
 
     if settings.gameplay.levelScaling then
         local levelStat = pself.type.stats.level(pself)
@@ -329,6 +366,7 @@ return {
     },
     eventHandlers = {
         [MOD_NAME .. "onKillCountUpdate"] = onKillCountUpdate,
+        [MOD_NAME .. "onUpgradeGearCompleted"] = onUpgradeGearCompleted,
         Died = onDied,
     },
 }
