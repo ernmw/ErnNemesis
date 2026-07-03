@@ -196,6 +196,40 @@ local function handleSkills(oldKills, newKills)
     end
 end
 
+local function learnRandomSpells(count)
+    local allSpells = core.magic.spells.records
+    local spells = {}
+    local actorSpells = types.Actor.spells(pself)
+    for i = 1, #allSpells, 1 do
+        local spell = allSpells[#allSpells]
+        if (not spell.alwaysSucceedFlag) and (spell.type == core.magic.SPELL_TYPE.Spell) and (actorSpells[spell.id] ~= nil) then
+            table.insert(spells, spell)
+        end
+    end
+    spells = shuffle(spells)
+    for i = 1, count, 1 do
+        actorSpells:add(spells[i])
+        settings.debugPrint(getRecord(pself.object).name ..
+            " learned " ..
+            tostring(spells[i].name))
+    end
+end
+
+local function handleSpells(oldKills, newKills)
+    if settings.gameplay.spellScaling <= 0 then
+        return
+    end
+    local isCreature = types.Creature.objectIsInstance(pself)
+    if isCreature then
+        return
+    end
+    local classRecord = types.NPC.classes.record(getRecord(pself.object).class)
+    if classRecord.specialization ~= "magic" then
+        return
+    end
+    learnRandomSpells(math.ceil(settings.gameplay.spellScaling * (newKills - oldKills)))
+end
+
 local function onActive()
     if pself.object:isValid() and not types.Actor.isDead(pself.object) then
         core.sendGlobalEvent(MOD_NAME .. "onActive",
@@ -215,6 +249,7 @@ local function onKillCountUpdate(data)
     handleDynStats(persist.kills, data.kills)
     handleAttributes(persist.kills, data.kills)
     handleSkills(persist.kills, data.kills)
+    handleSpells(persist.kills, data.kills)
 
     persist.kills = data.kills
 end
