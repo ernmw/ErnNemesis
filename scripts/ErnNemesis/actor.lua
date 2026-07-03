@@ -186,7 +186,7 @@ local function handleSkills(oldKills, newKills)
         local isCreature = types.Creature.objectIsInstance(pself)
         if not isCreature then
             local skillCounts = getPreferredClassSkills(scaleAmount)
-            for skillName, count in skillCounts do
+            for skillName, count in pairs(skillCounts) do
                 local skill = pself.type.stats.skills[skillName](pself)
                 skill.base = math.max(skill.base, skill.base + count)
                 settings.debugPrint(getRecord(pself.object).name ..
