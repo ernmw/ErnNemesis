@@ -1,0 +1,5 @@
+MENU: scripts/ErnNemesis/settings/menu_settings.lua
+
+PLAYER: scripts/ErnNemesis/player.lua
+GLOBAL: scripts/ErnNemesis/global.lua
+NPC,CREATURE: scripts/ErnNemesis/actor.lua
