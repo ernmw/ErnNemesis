@@ -118,6 +118,13 @@ local function globalInit()
                 integer = true,
                 min = 0
             }
+        }
+        , {
+            key = "levelScaling",
+            name = "levelScaling_name",
+            description = "levelScaling_description",
+            default = true,
+            renderer = "checkbox"
         }, {
             key = "equipmentScaling",
             name = "equipmentScaling_name",

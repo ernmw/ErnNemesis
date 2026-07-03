@@ -30,8 +30,17 @@ local shuffle    = require("scripts.ErnNemesis.shuffle")
 -- shouldn't pull in global storage in non-global contexts.
 --local nemesisData = storage.globalSection(MOD_NAME .. "NemesisData")
 
+---@class Persist
+---@field kills number Number of persisted kills.
+---@field weaponIDs string[] List of item IDs for weapons added by Nemesis.
+---@field armorIDs string[] List of item IDs for armor pieces added by Nemesis.
+---@field consumableIDs string[] List of item IDs for potions or scrolls added by Nemesis.
+
 local persist    = {
-    kills = 0
+    kills = 0,
+    weaponIDs = {},
+    armorIDs = {},
+    consumableIDs = {},
 }
 
 local function getRecord(obj)
@@ -231,6 +240,46 @@ local function handleSpells(oldKills, newKills)
     learnRandomSpells(math.ceil(settings.gameplay.spellScaling * (newKills - oldKills)))
 end
 
+---@return string|nil
+local function getBestArmorSkill()
+    local armorSkills = {
+        heavyarmor = pself.type.stats.skills.heavyarmor(pself),
+        mediumarmor = pself.type.stats.skills.mediumarmor(pself),
+        lightarmor = pself.type.stats.skills.lightarmor(pself),
+    }
+    local skillName = nil
+    local highestScore = -100
+    for name, skill in pairs(armorSkills) do
+        if highestScore < skill.base then
+            highestScore = skill.base
+            skillName = name
+        end
+    end
+    return skillName
+end
+
+---@return string|nil
+local function getBestWeaponSkill()
+    local weaponSkills = {
+        axe = pself.type.stats.skills.axe(pself),
+        bluntweapon = pself.type.stats.skills.bluntweapon(pself),
+        longblade = pself.type.stats.skills.longblade(pself),
+        marksman = pself.type.stats.skills.marksman(pself),
+        shortblade = pself.type.stats.skills.shortblade(pself),
+        spear = pself.type.stats.skills.spear(pself),
+    }
+    local skillName = nil
+    local highestScore = -100
+    for name, skill in pairs(weaponSkills) do
+        if highestScore < skill.base then
+            highestScore = skill.base
+            skillName = name
+        end
+    end
+    return skillName
+end
+
+
 local function onActive()
     if pself.object:isValid() and not types.Actor.isDead(pself.object) then
         core.sendGlobalEvent(MOD_NAME .. "onActive",
@@ -251,6 +300,14 @@ local function onKillCountUpdate(data)
     handleAttributes(persist.kills, data.kills)
     handleSkills(persist.kills, data.kills)
     handleSpells(persist.kills, data.kills)
+
+    if settings.gameplay.levelScaling then
+        local levelStat = pself.type.stats.level(pself)
+        levelStat.current = levelStat.current + 1
+        settings.debugPrint(getRecord(pself.object).name ..
+            " leveled up to " ..
+            tostring(levelStat.current))
+    end
 
     persist.kills = data.kills
 end
