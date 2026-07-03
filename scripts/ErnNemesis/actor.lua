@@ -298,10 +298,21 @@ end
 local function handleGear(oldKills, newKills)
     -- hand this all off to the global script
     if settings.gameplay.equipmentScaling > 0 then
+        local itemsByID = {}
+        for _, item in ipairs(pself.type.inventory(pself):getAll()) do
+            itemsByID[item.id] = item
+        end
+        local oldGear = {}
+        for _, id in ipairs(persist.gearIDs or {}) do
+            oldGear[id] = itemsByID[id]
+            if oldGear[id] and not oldGear[id]:isValid() then
+                oldGear[id] = nil
+            end
+        end
         ---@type UpgradeGearData
         local data = {
             actor = pself.object,
-            oldGear = persist.gearIDs,
+            oldGear = oldGear,
             weaponSkill = getBestWeaponSkill(),
             armorSkill = getBestArmorSkill(),
             points = settings.gameplay.equipmentScaling * newKills
@@ -319,9 +330,13 @@ local function onUpgradeGearCompleted(data)
         itemsByID[item.id] = item
     end
 
+    ---@type {[number]:table}
     local equipped = {}
     for key, val in pairs(persist.originalEquipmentBySlot) do
         equipped[key] = itemsByID[val]
+        if equipped[key] and not equipped[key]:isValid() then
+            equipped[key] = nil
+        end
     end
 
     --- this is called after global has inserted new gear
@@ -333,7 +348,7 @@ local function onUpgradeGearCompleted(data)
 
         settings.debugPrint(getRecord(pself.object).name ..
             " equipped new item " ..
-            tostring(getRecord(itemsByID[id]).name))
+            tostring(getRecord(itemsByID[id]).name) .. " in slot " .. tostring(slot))
     end
     for _, id in ipairs(data.newConsumableIDs) do
         table.insert(newIDs, id)

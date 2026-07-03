@@ -185,7 +185,7 @@ local weaponsByType = {
 
 ---@param valueFn fun(record: table): number
 local function buildWeaponsLists(valueFn)
-    for _, record in ipairs(types.Armor.records) do
+    for _, record in ipairs(types.Weapon.records) do
         binaryInsert(weaponsByType[record.type], record, weaponValue)
     end
 end

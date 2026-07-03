@@ -86,7 +86,7 @@ end
 
 
 ---@class UpgradeGearCompletedData
----@field newIDsBySlot {[string]: string}
+---@field newIDsBySlot {[number]: string}
 ---@field newConsumableIDs string[]
 
 ---@param data UpgradeGearData
@@ -95,6 +95,10 @@ local function onUpgradeGear(data)
     --- 2. spawn in new gear
     --- 3. get the npc to equip it
     itemutil.build()
+
+    -- delete old items
+    for _, item in ipairs(data.oldGear) do
+    end
 
     ---@type UpgradeGearCompletedData
     local newData = {
@@ -108,15 +112,16 @@ local function onUpgradeGear(data)
     if rightHandItem then
         local rightHandRecord = getRecord(rightHandItem)
         local rightHandScore = itemutil.weaponValue(rightHandRecord)
-        local betterItemRecord = itemutil.getWeaponWithScore(rightHandScore + data.points)
+        local betterItemRecord = itemutil.getWeaponWithScore(rightHandRecord.type, rightHandScore + data.points)
         if rightHandRecord.id ~= betterItemRecord.id then
-            local newItemInstance = world.createObject(betterItemRecord)
+            local newItemInstance = world.createObject(betterItemRecord.id)
             newItemInstance:moveInto(inventory)
             newData.newIDsBySlot[types.Actor.EQUIPMENT_SLOT.CarriedRight] = newItemInstance.id
         end
     end
 
     data.actor:sendEvent(MOD_NAME .. "onUpgradeGearCompleted", newData)
+    settings.debugPrint("Nemesis gear for " .. getRecord(data.actor).id .. ": " .. aux_util.deepToString(newData, 3))
 end
 
 return {
