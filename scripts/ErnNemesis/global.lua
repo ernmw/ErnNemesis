@@ -123,9 +123,28 @@ local function onUpgradeGear(data)
         end
     end
 
+    local upgradeArmor = function(skill, slot)
+        local oldItem = types.Actor.getEquipment(data.actor, slot)
+        if oldItem then
+            local oldItemRecord = getRecord(oldItem)
+            local oldItemScore = itemutil.armorValue(oldItemRecord)
+            local betterItemRecord = itemutil.getArmorWithScore(skill, slot,
+                oldItemScore + (settings.gameplay.armorScaling * data.totalKills))
+            if oldItemRecord.id ~= betterItemRecord.id then
+                local newItemInstance = world.createObject(betterItemRecord.id)
+                newItemInstance:moveInto(inventory)
+                newData.newIDsBySlot[slot] = newItemInstance.id
+            end
+        end
+    end
+
     if settings.gameplay.weaponScaling > 0 then
         upgradeWeapon(types.Actor.EQUIPMENT_SLOT.CarriedRight)
         upgradeWeapon(types.Actor.EQUIPMENT_SLOT.Ammunition)
+    end
+
+    if settings.gameplay.armorScaling > 0 and data.armorSkill and data.armorSkill ~= "unarmored" then
+        upgradeArmor(data.armorSkill, types.Actor.EQUIPMENT_SLOT.Cuirass)
     end
 
     data.actor:sendEvent(MOD_NAME .. "onUpgradeGearCompleted", newData)

@@ -218,4 +218,5 @@ return {
     weaponValue = weaponValue,
     getWeaponWithScore = getWeaponWithScore,
     getArmorWithScore = getArmorWithScore,
+    armorTypeToSlot = armorTypeToSlot,
 }
