@@ -296,8 +296,7 @@ end
 ---@field points number
 
 local function handleGear(oldKills, newKills)
-    -- step 1: delete the old nemesis gear we added
-    -- step 2: get new gear
+    -- hand this all off to the global script
     if settings.gameplay.equipmentScaling > 0 then
         ---@type UpgradeGearData
         local data = {
@@ -314,8 +313,9 @@ end
 
 ---@param data UpgradeGearCompletedData
 local function onUpgradeGearCompleted(data)
+    --- equip / persist new items we got from global
     local itemsByID = {}
-    for _, item in ipairs(pself.type.inventory(pself)) do
+    for _, item in ipairs(pself.type.inventory(pself):getAll()) do
         itemsByID[item.id] = item
     end
 

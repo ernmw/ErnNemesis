@@ -22,6 +22,7 @@ local world      = require('openmw.world')
 local types      = require('openmw.types')
 local aux_util   = require('openmw_aux.util')
 local settings   = require("scripts.ErnNemesis.settings.settings")
+local itemutil   = require("scripts.ErnNemesis.itemutil")
 
 local function getRecord(obj)
     return obj.type.record(obj)
@@ -93,6 +94,7 @@ local function onUpgradeGear(data)
     --- 1. delete the old gear
     --- 2. spawn in new gear
     --- 3. get the npc to equip it
+    itemutil.build()
 
     ---@type UpgradeGearCompletedData
     local newData = {
