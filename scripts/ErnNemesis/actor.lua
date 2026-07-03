@@ -75,31 +75,41 @@ local function handleDynStats(oldKills, newKills)
     end
 end
 
----@class AttributePreferences
----@field count number
----@field name string
-
----@return AttributePreferences[]
+---@return {[string]:number}
 local function getPreferredAttributes()
+    -- this function needs to return a map of attribute name to some number.
+    -- the sum of all the values of these numbers must be 1.
+
+    local baseCount = 1 / 8
     local isCreature = types.Creature.objectIsInstance(pself)
     if isCreature then
         return {
-            { count = 1 / 8, name = "agility" },
-            { count = 1 / 8, name = "endurance" },
-            { count = 1 / 8, name = "intelligence" },
-            { count = 1 / 8, name = "luck" },
-            { count = 1 / 8, name = "personality" },
-            { count = 1 / 8, name = "speed" },
-            { count = 1 / 8, name = "strength" },
-            { count = 1 / 8, name = "willpower" },
+            agility = baseCount,
+            endurance = baseCount,
+            intelligence = baseCount,
+            luck = baseCount,
+            personality = baseCount,
+            speed = baseCount,
+            strength = baseCount,
+            willpower = baseCount,
         }
     else
+        --- the class's preferred attributes should have a sum which is 0.5.
         local classRecord = types.NPC.classes.record(getRecord(pself.object).class)
-        local classAttribCount = #(classRecord.attributes)
-        local out = {}
+        local classAttribCount = 0.5 / #(classRecord.attributes)
+        local minorAttributesCount = 0.5 / (8 - #(classRecord.attributes))
+        local out = {
+            agility = minorAttributesCount,
+            endurance = minorAttributesCount,
+            intelligence = minorAttributesCount,
+            luck = minorAttributesCount,
+            personality = minorAttributesCount,
+            speed = minorAttributesCount,
+            strength = minorAttributesCount,
+            willpower = minorAttributesCount,
+        }
         for _, attributeName in ipairs(classRecord.attributes) do
-            table.insert(out,
-                { count = 1 / classAttribCount, name = attributeName })
+            out[attributeName] = classAttribCount
         end
         return out
     end
@@ -107,12 +117,13 @@ end
 
 local function handleAttributes(oldKills, newKills)
     if settings.gameplay.attributeScaling > 0 then
-        for _, attrib in ipairs(getPreferredAttributes()) do
-            local increase = math.ceil(settings.gameplay.attributeScaling * attrib.count) * (newKills - oldKills)
-            local attribute = pself.type.stats.attributes[attrib.name](pself)
+        for attribName, count in pairs(getPreferredAttributes()) do
+            -- only want to do whole numbers here
+            local increase = math.ceil(settings.gameplay.attributeScaling * count) * (newKills - oldKills)
+            local attribute = pself.type.stats.attributes[attribName](pself)
             attribute.base = math.max(attribute.base, attribute.base + increase)
             settings.debugPrint(getRecord(pself.object).name ..
-                " " .. attrib.name .. " increased by " .. tostring(increase))
+                " " .. attribName .. " increased by " .. tostring(increase))
         end
     end
 end
