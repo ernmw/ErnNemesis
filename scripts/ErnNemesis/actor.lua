@@ -201,13 +201,14 @@ local function learnRandomSpells(count)
     local spells = {}
     local actorSpells = types.Actor.spells(pself)
     for i = 1, #allSpells, 1 do
-        local spell = allSpells[#allSpells]
-        if (not spell.alwaysSucceedFlag) and (spell.type == core.magic.SPELL_TYPE.Spell) and (actorSpells[spell.id] ~= nil) then
+        local spell = allSpells[i]
+        if (not spell.isAutocalc or spell.cost > 10) and (not spell.alwaysSucceedFlag) and (spell.type == core.magic.SPELL_TYPE.Spell) and (actorSpells[spell.id] == nil) then
             table.insert(spells, spell)
         end
     end
     spells = shuffle(spells)
-    for i = 1, count, 1 do
+    --settings.debugPrint("Potential spells: " .. aux_util.deepToString(spells, 3))
+    for i = 1, math.min(count, #spells), 1 do
         actorSpells:add(spells[i])
         settings.debugPrint(getRecord(pself.object).name ..
             " learned " ..

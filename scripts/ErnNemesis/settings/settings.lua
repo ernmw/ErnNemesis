@@ -122,14 +122,22 @@ local function globalInit()
             key = "equipmentScaling",
             name = "equipmentScaling_name",
             description = "equipmentScaling_description",
-            default = true,
-            renderer = "checkbox"
+            default = 3,
+            renderer = "number",
+            argument = {
+                integer = true,
+                min = 0
+            }
         }, {
             key = "spellScaling",
             name = "spellScaling_name",
             description = "spellScaling_description",
-            default = true,
-            renderer = "checkbox"
+            default = 2,
+            renderer = "number",
+            argument = {
+                integer = true,
+                min = 0
+            }
         },
         }
     }
