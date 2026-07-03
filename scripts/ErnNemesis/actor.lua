@@ -25,6 +25,7 @@ local storage    = require('openmw.storage')
 local nearby     = require('openmw.nearby')
 local aux_util   = require('openmw_aux.util')
 local settings   = require("scripts.ErnNemesis.settings.settings")
+local shuffle    = require("scripts.ErnNemesis.shuffle")
 
 -- shouldn't pull in global storage in non-global contexts.
 --local nemesisData = storage.globalSection(MOD_NAME .. "NemesisData")
@@ -75,15 +76,58 @@ local function handleDynStats(oldKills, newKills)
     end
 end
 
----@return {[string]:number}
-local function getPreferredAttributes()
-    -- this function needs to return a map of attribute name to some number.
-    -- the sum of all the values of these numbers must be 1.
+local function forceSumInValues(collection, desiredSum)
+    if math.ceil(desiredSum) ~= desiredSum then
+        error("desiredSum must be whole number")
+    end
+    local out = collection
+    local findSum = function()
+        local checkCount = 0
+        for _, count in pairs(out) do
+            if math.ceil(count) ~= count then
+                error("count must be whole number")
+            end
+            checkCount = checkCount + count
+        end
+        return checkCount
+    end
+    while true do
+        local sum = findSum()
+        if sum == desiredSum then
+            break
+        end
+        if sum > desiredSum then
+            -- get positive list
+            local positiveKeys = {}
+            for key, count in pairs(out) do
+                if count > 0 then
+                    table.insert(positiveKeys, key)
+                end
+            end
+            local toReduce = positiveKeys[math.random(#positiveKeys)]
+            out[toReduce] = out[toReduce] - 1
+        elseif sum < desiredSum then
+            -- get all keys
+            local keys = {}
+            for key, count in pairs(out) do
+                table.insert(keys, key)
+            end
+            local toIncrease = keys[math.random(#keys)]
+            out[toIncrease] = out[toIncrease] + 1
+        end
+    end
+    return out
+end
 
-    local baseCount = 1 / 8
+---@return {[string]:number}
+local function getPreferredAttributes(totalDesiredIncrease)
+    -- this function needs to return a map of attribute name to some number.
+    -- the sum of all the values of these numbers must be 8.
+
     local isCreature = types.Creature.objectIsInstance(pself)
     if isCreature then
-        return {
+        local baseCount = math.floor(totalDesiredIncrease / 8)
+        local out = {
             agility = baseCount,
             endurance = baseCount,
             intelligence = baseCount,
@@ -93,11 +137,12 @@ local function getPreferredAttributes()
             strength = baseCount,
             willpower = baseCount,
         }
+        return forceSumInValues(out, totalDesiredIncrease)
     else
         --- the class's preferred attributes should have a sum which is 0.5.
         local classRecord = types.NPC.classes.record(getRecord(pself.object).class)
-        local classAttribCount = 0.5 / #(classRecord.attributes)
-        local minorAttributesCount = 0.5 / (8 - #(classRecord.attributes))
+        local classAttribCount = math.ceil(8 * 0.5 / #(classRecord.attributes))
+        local minorAttributesCount = math.floor(8 * 0.5 / (8 - #(classRecord.attributes)))
         local out = {
             agility = minorAttributesCount,
             endurance = minorAttributesCount,
@@ -111,19 +156,17 @@ local function getPreferredAttributes()
         for _, attributeName in ipairs(classRecord.attributes) do
             out[attributeName] = classAttribCount
         end
-        return out
+        return forceSumInValues(out, totalDesiredIncrease)
     end
 end
 
 local function handleAttributes(oldKills, newKills)
     if settings.gameplay.attributeScaling > 0 then
-        for attribName, count in pairs(getPreferredAttributes()) do
-            -- only want to do whole numbers here
-            local increase = math.ceil(settings.gameplay.attributeScaling * count) * (newKills - oldKills)
+        for attribName, count in pairs(getPreferredAttributes(settings.gameplay.attributeScaling * (newKills - oldKills))) do
             local attribute = pself.type.stats.attributes[attribName](pself)
-            attribute.base = math.max(attribute.base, attribute.base + increase)
+            attribute.base = math.max(attribute.base, attribute.base + count)
             settings.debugPrint(getRecord(pself.object).name ..
-                " " .. attribName .. " increased by " .. tostring(increase))
+                " " .. attribName .. " increased by " .. tostring(count))
         end
     end
 end
@@ -150,6 +193,9 @@ local function onDied()
 end
 
 local function onKillCountUpdate(data)
+    settings.debugPrint(getRecord(pself.object).name ..
+        " has killed the player " ..
+        tostring(data.kills) .. " total times, up from " .. tostring(persist.kills) .. " times.")
     handleDynStats(persist.kills, data.kills)
     handleAttributes(persist.kills, data.kills)
 

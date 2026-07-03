@@ -34,7 +34,7 @@ end
 local nemesisData = storage.globalSection(MOD_NAME .. "NemesisData")
 
 local function onActive(data)
-    settings.debugPrint("Global onActive: " .. aux_util.deepToString(data, 3))
+    --settings.debugPrint("Global onActive: " .. aux_util.deepToString(data, 3))
 
     local kills = 0
     for _, player in ipairs(world.players) do
