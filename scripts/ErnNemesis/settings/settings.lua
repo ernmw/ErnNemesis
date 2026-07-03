@@ -102,7 +102,7 @@ local function globalInit()
             key = "attributeScaling",
             name = "attributeScaling_name",
             description = "attributeScaling_description",
-            default = 5,
+            default = 8,
             renderer = "number",
             argument = {
                 integer = true,

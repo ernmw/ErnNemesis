@@ -40,7 +40,6 @@ end
 ---@class DynStat
 ---@field Name string
 ---@field GetSetting fun():number
----@field GetStat fun():table
 
 ---@type DynStat[]
 local dynStats = {
@@ -49,27 +48,18 @@ local dynStats = {
         GetSetting = function()
             return settings.gameplay.healthScaling
         end,
-        GetStat = function()
-            return pself.type.stats.dynamic.health(pself)
-        end
     },
     {
         Name = "magicka",
         GetSetting = function()
             return settings.gameplay.magickaScaling
         end,
-        GetStat = function()
-            return pself.type.stats.dynamic.magicka(pself)
-        end
     },
     {
         Name = "fatigue",
         GetSetting = function()
             return settings.gameplay.fatigueScaling
         end,
-        GetStat = function()
-            return pself.type.stats.dynamic.fatigue(pself)
-        end
     },
 }
 
@@ -77,7 +67,7 @@ local function handleDynStats(oldKills, newKills)
     for _, s in ipairs(dynStats) do
         if s.GetSetting() > 0 then
             local buff = (newKills - oldKills) * s.GetSetting()
-            local stat = s.GetStat()
+            local stat = pself.type.stats.dynamic[s.Name](pself)
             stat.base = math.max(stat.base, stat.base + buff)
             stat.current = math.max(stat.current, stat.current + buff)
             settings.debugPrint(getRecord(pself.object).name .. " " .. s.Name .. " increased by " .. tostring(buff))
@@ -85,7 +75,56 @@ local function handleDynStats(oldKills, newKills)
     end
 end
 
+---@class AttributePreferences
+---@field count number
+---@field name string
 
+---@return AttributePreferences[]
+local function getPreferredAttributes()
+    local isCreature = types.Creature.objectIsInstance(pself)
+    if isCreature then
+        return {
+            { count = 1 / 8, name = "agility" },
+            { count = 1 / 8, name = "endurance" },
+            { count = 1 / 8, name = "intelligence" },
+            { count = 1 / 8, name = "luck" },
+            { count = 1 / 8, name = "personality" },
+            { count = 1 / 8, name = "speed" },
+            { count = 1 / 8, name = "strength" },
+            { count = 1 / 8, name = "willpower" },
+        }
+    else
+        local classRecord = types.NPC.classes.record(getRecord(pself.object).class)
+        local classAttribCount = #(classRecord.attributes)
+        local out = {}
+        for _, attributeName in ipairs(classRecord.attributes) do
+            table.insert(out,
+                { count = 1 / classAttribCount, name = attributeName })
+        end
+        return out
+    end
+end
+
+local function handleAttributes(oldKills, newKills)
+    if settings.gameplay.attributeScaling > 0 then
+        for _, attrib in ipairs(getPreferredAttributes()) do
+            local increase = math.ceil(settings.gameplay.attributeScaling * attrib.count) * (newKills - oldKills)
+            local attribute = pself.type.stats.attributes[attrib.name](pself)
+            attribute.base = math.max(attribute.base, attribute.base + increase)
+            settings.debugPrint(getRecord(pself.object).name ..
+                " " .. attrib.name .. " increased by " .. tostring(increase))
+        end
+    end
+end
+
+
+local function handleSkills(oldKills, newKills)
+    local isCreature = types.Creature.objectIsInstance(pself)
+    if isCreature then
+    else
+        local className = types.NPC.classes.record(getRecord(pself.object).class).name
+    end
+end
 
 local function onActive()
     if pself.object:isValid() and not types.Actor.isDead(pself.object) then
@@ -101,6 +140,7 @@ end
 
 local function onKillCountUpdate(data)
     handleDynStats(persist.kills, data.kills)
+    handleAttributes(persist.kills, data.kills)
 
     persist.kills = data.kills
 end
