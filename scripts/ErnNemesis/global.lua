@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 local MOD_NAME   = require("scripts.ErnNemesis.ns")
 local interfaces = require('openmw.interfaces')
 local storage    = require('openmw.storage')
+local world      = require('openmw.world')
 local types      = require('openmw.types')
 local aux_util   = require('openmw_aux.util')
 
@@ -31,8 +32,36 @@ end
 
 local nemesisData = storage.globalSection(MOD_NAME .. "NemesisData")
 
-local function onNemesisActive(data)
-    print("Global onNemesisActive: " .. aux_util.deepToString(data, 3))
+local function onActive(data)
+    print("Global onActive: " .. aux_util.deepToString(data, 3))
+
+    local kills = 0
+    for _, player in ipairs(world.players) do
+        local snapshot = nemesisData:asTable()[getRecord(player).name]
+        if snapshot[data.actor.id] then
+            kills = kills + snapshot[data.actor.id]
+        end
+    end
+
+    if kills ~= data.kills then
+        --- TODO: some buffs must be applied here
+
+        --- Persist kill count on actor
+        data.actor:sendEvent(MOD_NAME .. "onKillCountUpdate", { kills = kills })
+    end
+end
+
+local function onNemesisDied(data)
+    print("Global onNemesisDied: " .. aux_util.deepToString(data, 3))
+    for _, player in ipairs(world.players) do
+        local key = getRecord(player).name
+        local snapshot = nemesisData:asTable()[key]
+        if snapshot[data.actor.id] then
+            snapshot[data.actor.id] = nil
+        end
+        print("New nemesis data: " .. aux_util.deepToString(snapshot, 3))
+        nemesisData:set(key, snapshot)
+    end
 end
 
 local function onPlayerDied(data)
@@ -55,8 +84,9 @@ end
 
 return {
     eventHandlers = {
-        [MOD_NAME .. "onNemesisActive"] = onNemesisActive,
+        [MOD_NAME .. "onActive"] = onActive,
         [MOD_NAME .. "onPlayerDied"] = onPlayerDied,
+        [MOD_NAME .. "onNemesisDied"] = onNemesisDied,
         [MOD_NAME .. "onClearState"] = onClearState,
     },
 }

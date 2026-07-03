@@ -15,45 +15,60 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
-local core        = require('openmw.core')
-local types       = require('openmw.types')
-local pself       = require('openmw.self')
-local async       = require('openmw.async')
-local MOD_NAME    = require("scripts.ErnNemesis.ns")
-local interfaces  = require('openmw.interfaces')
-local storage     = require('openmw.storage')
-local nearby      = require('openmw.nearby')
-local aux_util    = require('openmw_aux.util')
+local core       = require('openmw.core')
+local types      = require('openmw.types')
+local pself      = require('openmw.self')
+local async      = require('openmw.async')
+local MOD_NAME   = require("scripts.ErnNemesis.ns")
+local interfaces = require('openmw.interfaces')
+local storage    = require('openmw.storage')
+local nearby     = require('openmw.nearby')
+local aux_util   = require('openmw_aux.util')
 
-local nemesisData = storage.globalSection(MOD_NAME .. "NemesisData")
+-- shouldn't pull in global storage in non-global contexts.
+--local nemesisData = storage.globalSection(MOD_NAME .. "NemesisData")
+
+local persist    = {
+    kills = 0
+}
 
 local function getRecord(obj)
     return obj.type.record(obj)
 end
 
 local function onActive()
-    --print("onActive: " .. getRecord(pself.object).name)
-    local kills = 0
-    for _, player in ipairs(nearby.players) do
-        local snapshot = nemesisData:asTable()[getRecord(player).name]
-        if snapshot[pself.object.id] then
-            kills = kills + snapshot[pself.object.id]
-        end
-    end
-
-    if kills > 0 then
-        local eventData = {
-            opponent = pself,
-            kills = kills,
-        }
-        print("Nemesis Activated: " .. aux_util.deepToString(eventData))
-        core.sendGlobalEvent(MOD_NAME .. "onNemesisActive", eventData)
+    if pself.object:isValid() and not types.Actor.isDead(pself.object) then
+        core.sendGlobalEvent(MOD_NAME .. "onActive",
+            { actor = pself.object, kills = persist.kills })
     end
 end
 
+local function onDied()
+    core.sendGlobalEvent(MOD_NAME .. "onNemesisDied",
+        { actor = pself.object, kills = persist.kills })
+end
+
+local function onKillCountUpdate(data)
+    persist.kills = data.kills
+end
+
+local function onLoad(data)
+    if data then
+        persist = data
+    end
+end
+local function onSave()
+    return persist
+end
 
 return {
     engineHandlers = {
         onActive = onActive,
+        onLoad = onLoad,
+        onSave = onSave,
+    },
+    eventHandlers = {
+        [MOD_NAME .. "onKillCountUpdate"] = onKillCountUpdate,
+        Died = onDied,
     },
 }
