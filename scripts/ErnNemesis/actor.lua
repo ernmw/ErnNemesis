@@ -33,10 +33,21 @@ local shuffle    = require("scripts.ErnNemesis.shuffle")
 ---@class Persist
 ---@field kills number Number of persisted kills.
 ---@field gearIDs string[] List of item IDs for items added by Nemesis.
+---@field originalEquipmentBySlot {[number]: string} slot to item ID
 
-local persist    = {
+---@return {[number]: string}
+local function equipmentSnapshot()
+    local out = {}
+    for slot, item in pairs(pself.type.getEquipment(pself)) do
+        out[slot] = item.id
+    end
+    return out
+end
+
+local persist = {
     kills = 0,
     gearIDs = {},
+    originalEquipmentBySlot = equipmentSnapshot(),
 }
 
 local function getRecord(obj)
@@ -303,17 +314,29 @@ end
 
 ---@param data UpgradeGearCompletedData
 local function onUpgradeGearCompleted(data)
+    local itemsByID = {}
+    for _, item in ipairs(pself.type.inventory(pself)) do
+        itemsByID[item.id] = item
+    end
+
+    local equipped = {}
+    for key, val in pairs(persist.originalEquipmentBySlot) do
+        equipped[key] = itemsByID[val]
+    end
+
     --- this is called after global has inserted new gear
     --- persist the new gear IDs so we can delete them later, if needed.
     local newIDs = {}
-    for _, id in pairs(data.newIDsBySlot) do
+    for slot, id in pairs(data.newIDsBySlot) do
         table.insert(newIDs, id)
+        equipped[slot] = itemsByID[id]
     end
     for _, id in ipairs(data.newConsumableIDs) do
         table.insert(newIDs, id)
     end
     persist.gearIDs = newIDs
     --- equip the new gear
+    pself.type.setEquipment(pself, equipped)
 end
 
 local function onActive()
