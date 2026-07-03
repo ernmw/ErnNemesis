@@ -72,32 +72,52 @@ local function globalInit()
                 key = "healthScaling",
                 name = "healthScaling_name",
                 description = "healthScaling_description",
-                default = true,
-                renderer = "checkbox"
+                default = 5,
+                renderer = "number",
+                argument = {
+                    integer = true,
+                    min = 0
+                }
             }, {
             key = "fatigueScaling",
             name = "fatigueScaling_name",
             description = "fatigueScaling_description",
-            default = true,
-            renderer = "checkbox"
+            default = 5,
+            renderer = "number",
+            argument = {
+                integer = true,
+                min = 0
+            }
         }, {
             key = "magickaScaling",
             name = "magickaScaling_name",
             description = "magickaScaling_description",
-            default = true,
-            renderer = "checkbox"
+            default = 5,
+            renderer = "number",
+            argument = {
+                integer = true,
+                min = 0
+            }
         }, {
             key = "attributeScaling",
             name = "attributeScaling_name",
             description = "attributeScaling_description",
-            default = true,
-            renderer = "checkbox"
+            default = 5,
+            renderer = "number",
+            argument = {
+                integer = true,
+                min = 0
+            }
         }, {
             key = "skillScaling",
             name = "skillScaling_name",
             description = "skillScaling_description",
-            default = true,
-            renderer = "checkbox"
+            default = 5,
+            renderer = "number",
+            argument = {
+                integer = true,
+                min = 0
+            }
         }, {
             key = "equipmentScaling",
             name = "equipmentScaling_name",

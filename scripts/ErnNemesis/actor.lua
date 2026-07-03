@@ -33,37 +33,59 @@ local persist    = {
     kills = 0
 }
 
-local function increaseDynamicStat(stat, oldKills, newKills)
-    local buff = (newKills - oldKills) * 5
-    settings.debugPrint("increase stat by " .. tostring(buff))
-    stat.base = math.max(stat.base, stat.base + buff)
-    stat.current = math.max(stat.current, stat.current + buff)
-end
-
-local function buffHealth(actor, oldKills, newKills)
-    if settings.gameplay.healthScaling then
-        local stat = actor.type.stats.dynamic.health(actor)
-        increaseDynamicStat(stat, oldKills, newKills)
-    end
-end
-
-local function buffFatigue(actor, oldKills, newKills)
-    if settings.gameplay.healthScaling then
-        local stat = actor.type.stats.dynamic.fatigue(actor)
-        increaseDynamicStat(stat, oldKills, newKills)
-    end
-end
-
-local function buffMagicka(actor, oldKills, newKills)
-    if settings.gameplay.healthScaling then
-        local stat = actor.type.stats.dynamic.magicka(actor)
-        increaseDynamicStat(stat, oldKills, newKills)
-    end
-end
-
 local function getRecord(obj)
     return obj.type.record(obj)
 end
+
+---@class DynStat
+---@field Name string
+---@field GetSetting fun():number
+---@field GetStat fun():table
+
+---@type DynStat[]
+local dynStats = {
+    {
+        Name = "health",
+        GetSetting = function()
+            return settings.gameplay.healthScaling
+        end,
+        GetStat = function()
+            return pself.type.stats.dynamic.health(pself)
+        end
+    },
+    {
+        Name = "magicka",
+        GetSetting = function()
+            return settings.gameplay.magickaScaling
+        end,
+        GetStat = function()
+            return pself.type.stats.dynamic.magicka(pself)
+        end
+    },
+    {
+        Name = "fatigue",
+        GetSetting = function()
+            return settings.gameplay.fatigueScaling
+        end,
+        GetStat = function()
+            return pself.type.stats.dynamic.fatigue(pself)
+        end
+    },
+}
+
+local function handleDynStats(oldKills, newKills)
+    for _, s in ipairs(dynStats) do
+        if s.GetSetting() > 0 then
+            local buff = (newKills - oldKills) * s.GetSetting()
+            local stat = s.GetStat()
+            stat.base = math.max(stat.base, stat.base + buff)
+            stat.current = math.max(stat.current, stat.current + buff)
+            settings.debugPrint(getRecord(pself.object).name .. " " .. s.Name .. " increased by " .. tostring(buff))
+        end
+    end
+end
+
+
 
 local function onActive()
     if pself.object:isValid() and not types.Actor.isDead(pself.object) then
@@ -78,9 +100,7 @@ local function onDied()
 end
 
 local function onKillCountUpdate(data)
-    buffHealth(pself, persist.kills, data.kills)
-    buffFatigue(pself, persist.kills, data.kills)
-    buffMagicka(pself, persist.kills, data.kills)
+    handleDynStats(persist.kills, data.kills)
 
     persist.kills = data.kills
 end
