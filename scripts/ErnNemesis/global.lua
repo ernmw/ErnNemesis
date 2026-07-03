@@ -101,6 +101,21 @@ local function onUpgradeGear(data)
         newIDsBySlot = {},
         newConsumableIDs = {},
     }
+
+    local inventory = types.Actor.inventory(data.actor)
+
+    local rightHandItem = types.Actor.getEquipment(data.actor, types.Actor.EQUIPMENT_SLOT.CarriedRight)
+    if rightHandItem then
+        local rightHandRecord = getRecord(rightHandItem)
+        local rightHandScore = itemutil.weaponValue(rightHandRecord)
+        local betterItemRecord = itemutil.getWeaponWithScore(rightHandScore + data.points)
+        if rightHandRecord.id ~= betterItemRecord.id then
+            local newItemInstance = world.createObject(betterItemRecord)
+            newItemInstance:moveInto(inventory)
+            newData.newIDsBySlot[types.Actor.EQUIPMENT_SLOT.CarriedRight] = newItemInstance.id
+        end
+    end
+
     data.actor:sendEvent(MOD_NAME .. "onUpgradeGearCompleted", newData)
 end
 

@@ -330,6 +330,10 @@ local function onUpgradeGearCompleted(data)
     for slot, id in pairs(data.newIDsBySlot) do
         table.insert(newIDs, id)
         equipped[slot] = itemsByID[id]
+
+        settings.debugPrint(getRecord(pself.object).name ..
+            " equipped new item " ..
+            tostring(getRecord(itemsByID[id]).name))
     end
     for _, id in ipairs(data.newConsumableIDs) do
         table.insert(newIDs, id)

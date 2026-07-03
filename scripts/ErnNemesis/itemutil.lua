@@ -18,28 +18,41 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 local core = require("openmw.core")
 local types = require("openmw.types")
 
+---Performs a binary search on a list sorted in ascending order by valueFn,
+---returning the index at which an item with the given score should be inserted.
 ---@generic T
 ---@param list T[] A list already sorted in ascending order by valueFn
----@param item T The item to insert
+---@param score number The score to find the insertion index for
 ---@param valueFn fun(record: table): number Returns the score to sort by
-local function binaryInsert(list, item, valueFn)
+---@return number index
+local function binarySearchInsertIndex(list, score, valueFn)
     local low = 1
     local high = #list
-    local itemValue = valueFn(item)
 
     while low <= high do
         local mid = math.floor((low + high) / 2)
         local midValue = valueFn(list[mid])
 
-        if midValue <= itemValue then
+        if midValue <= score then
             low = mid + 1
         else
             high = mid - 1
         end
     end
 
-    table.insert(list, low, item)
     return low
+end
+
+---Inserts item into list to keep it sorted in ascending order by valueFn(item).
+---@generic T
+---@param list T[] A list already sorted in ascending order by valueFn
+---@param item T The item to insert
+---@param valueFn fun(record: table): number Returns the score to sort by
+---@return number index The index the item was inserted at
+local function binaryInsert(list, item, valueFn)
+    local index = binarySearchInsertIndex(list, valueFn(item), valueFn)
+    table.insert(list, index, item)
+    return index
 end
 
 local armorWeightGMST = {
@@ -186,6 +199,16 @@ local function build()
     end
 end
 
+local function getWeaponWithScore(weaponType, score)
+    local idx = binarySearchInsertIndex(weaponsByType[weaponType], score, weaponValue)
+    return weaponsByType[weaponType][idx]
+end
+
+local function getArmorWithScore(skill, slot, score)
+    local idx = binarySearchInsertIndex(armorBySlotBySkill[skill][slot], score, armorValue)
+    return armorBySlotBySkill[skill][slot][idx]
+end
+
 return {
     getArmorSkill = getArmorSkill,
     armorBySlotBySkill = armorBySlotBySkill,
@@ -193,4 +216,6 @@ return {
     build = build,
     armorValue = armorValue,
     weaponValue = weaponValue,
+    getWeaponWithScore = getWeaponWithScore,
+    getArmorWithScore = getArmorWithScore,
 }
