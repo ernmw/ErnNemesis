@@ -122,8 +122,6 @@ end
 ---@return {[string]:number}
 local function getPreferredAttributes(totalDesiredIncrease)
     -- this function needs to return a map of attribute name to some number.
-    -- the sum of all the values of these numbers must be 8.
-
     local isCreature = types.Creature.objectIsInstance(pself)
     if isCreature then
         local baseCount = math.floor(totalDesiredIncrease / 8)
@@ -171,12 +169,30 @@ local function handleAttributes(oldKills, newKills)
     end
 end
 
+---@return {[string]:number}
+local function getPreferredClassSkills(totalDesiredIncrease)
+    local classRecord = types.NPC.classes.record(getRecord(pself.object).class)
+    local out = {}
+    for _, skillName in ipairs(classRecord.majorSkills) do
+        out[skillName] = math.ceil(0.7 * totalDesiredIncrease / #(classRecord.majorSkills))
+        out[skillName] = math.floor(0.3 * totalDesiredIncrease / #(classRecord.minorSkills))
+    end
+    return forceSumInValues(out, totalDesiredIncrease)
+end
 
 local function handleSkills(oldKills, newKills)
-    local isCreature = types.Creature.objectIsInstance(pself)
-    if isCreature then
-    else
-        local className = types.NPC.classes.record(getRecord(pself.object).class).name
+    if settings.gameplay.attributeScaling > 0 then
+        local scaleAmount = settings.gameplay.attributeScaling * (newKills - oldKills)
+        local isCreature = types.Creature.objectIsInstance(pself)
+        if not isCreature then
+            local skillCounts = getPreferredClassSkills(scaleAmount)
+            for skillName, count in skillCounts do
+                local skill = pself.type.stats.skills[skillName](pself)
+                skill.base = math.max(skill.base, skill.base + count)
+                settings.debugPrint(getRecord(pself.object).name ..
+                    " " .. skillName .. " increased by " .. tostring(count))
+            end
+        end
     end
 end
 
@@ -198,6 +214,7 @@ local function onKillCountUpdate(data)
         tostring(data.kills) .. " total times, up from " .. tostring(persist.kills) .. " times.")
     handleDynStats(persist.kills, data.kills)
     handleAttributes(persist.kills, data.kills)
+    handleSkills(persist.kills, data.kills)
 
     persist.kills = data.kills
 end
