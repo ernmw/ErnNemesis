@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 local MOD_NAME = require("scripts.ErnNemesis.ns")
 local vfs      = require('openmw.vfs')
 local markup   = require('openmw.markup')
+local settings = require("scripts.ErnNemesis.settings.settings")
 
 --[[
 Dump levelled lists notes:
@@ -25,28 +26,40 @@ tes3cmd dump --type levi './Morrowind/Data Files/Morrowind.esm' | grep Item_ID |
 tes3cmd dump --type levi './Morrowind/Data Files/Tribunal.esm' | grep Item_ID | awk -F: '{print $NF}' | sort -u >> items.txt
 tes3cmd dump --type levi './Morrowind/Data Files/Bloodmoon.esm' | grep Item_ID | awk -F: '{print $NF}' | sort -u >> items.txt
 tes3cmd dump --type levi './mods/ModdingResources/TamrielData/00 Data Files/Tamriel_Data.esm' | grep Item_ID | awk -F: '{print $NF}' | sort -u >> items.txt
-sed 's/^/  - record: /' items.txt | sort -u
+sed 's/^/  - /' items.txt | sort -u
 ]]
 
-local merged = {}
+local dict = {}
 
-local function hasSuffix(str, suffix)
-    if #suffix == 0 then return true end
-    return str:sub(- #suffix) == suffix
-end
+local function load()
+    local merged = {}
 
-local function loadFile(fileName)
-    local result = markup.loadYaml(fileName)
-    for k, v in pairs(result) do
-        merged[k] = v
+    local function hasSuffix(str, suffix)
+        if #suffix == 0 then return true end
+        return str:sub(- #suffix) == suffix
     end
-end
 
-
-for fileName in vfs.pathsWithPrefix("scripts\\" .. MOD_NAME .. "\\items") do
-    if hasSuffix(fileName:lower(), ".yaml") then
-        loadFile(fileName)
+    local function loadFile(fileName)
+        local result = markup.loadYaml(fileName)
+        for k, v in pairs(result) do
+            merged[k] = v
+        end
     end
+
+
+    for fileName in vfs.pathsWithPrefix("scripts\\" .. MOD_NAME .. "\\items") do
+        if hasSuffix(fileName:lower(), ".yaml") then
+            loadFile(fileName)
+        end
+    end
+
+    for _, id in pairs(merged.items) do
+        dict[id] = true
+    end
+
+    settings.debugPrint("Loaded " .. tostring(#merged.items) .. " items.")
 end
 
-return merged.allow
+load()
+
+return dict

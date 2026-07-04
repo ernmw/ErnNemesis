@@ -15,8 +15,9 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
-local core = require("openmw.core")
-local types = require("openmw.types")
+local core         = require("openmw.core")
+local types        = require("openmw.types")
+local allowedItems = require("scripts.ErnNemesis.items.load")
 
 ---Performs a binary search on a list sorted in ascending order by valueFn,
 ---returning the index at which an item with the given score should be inserted.
@@ -151,15 +152,17 @@ local armorBySlotBySkill = {
 
 local function buildArmorLists()
     for _, record in ipairs(types.Armor.records) do
-        local skill = getArmorSkill(record)
-        if not skill then
-            error("no skill for " .. record.id)
+        if allowedItems[record.id] then
+            local skill = getArmorSkill(record)
+            if not skill then
+                error("no skill for " .. record.id)
+            end
+            local slot = armorTypeToSlot[record.type]
+            if not slot then
+                error("no slot for " .. record.id)
+            end
+            binaryInsert(armorBySlotBySkill[skill][slot], record, armorValue)
         end
-        local slot = armorTypeToSlot[record.type]
-        if not slot then
-            error("no slot for " .. record.id)
-        end
-        binaryInsert(armorBySlotBySkill[skill][slot], record, armorValue)
     end
 end
 
@@ -184,7 +187,9 @@ local weaponsByType = {
 
 local function buildWeaponsLists()
     for _, record in ipairs(types.Weapon.records) do
-        binaryInsert(weaponsByType[record.type], record, weaponValue)
+        if allowedItems[record.id] then
+            binaryInsert(weaponsByType[record.type], record, weaponValue)
+        end
     end
 end
 
