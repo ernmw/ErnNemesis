@@ -102,7 +102,7 @@ local function globalInit()
             key = "attributeScaling",
             name = "attributeScaling_name",
             description = "attributeScaling_description",
-            default = 8,
+            default = 6,
             renderer = "number",
             argument = {
                 integer = true,
@@ -112,7 +112,7 @@ local function globalInit()
             key = "skillScaling",
             name = "skillScaling_name",
             description = "skillScaling_description",
-            default = 5,
+            default = 10,
             renderer = "number",
             argument = {
                 integer = true,
@@ -129,7 +129,7 @@ local function globalInit()
             key = "weaponScaling",
             name = "weaponScaling_name",
             description = "weaponScaling_description",
-            default = 10,
+            default = 5,
             renderer = "number",
             argument = {
                 integer = true,
