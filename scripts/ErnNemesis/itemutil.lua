@@ -149,8 +149,7 @@ local armorBySlotBySkill = {
     heavyarmor = allSlots(),
 }
 
----@param valueFn fun(record: table): number
-local function buildArmorLists(valueFn)
+local function buildArmorLists()
     for _, record in ipairs(types.Armor.records) do
         local skill = getArmorSkill(record)
         if not skill then
@@ -183,8 +182,7 @@ local weaponsByType = {
     [types.Weapon.TYPE.Bolt]              = {},
 }
 
----@param valueFn fun(record: table): number
-local function buildWeaponsLists(valueFn)
+local function buildWeaponsLists()
     for _, record in ipairs(types.Weapon.records) do
         binaryInsert(weaponsByType[record.type], record, weaponValue)
     end
@@ -194,8 +192,8 @@ local built = false
 local function build()
     if not built then
         built = true
-        buildArmorLists(armorValue)
-        buildWeaponsLists(weaponValue)
+        buildArmorLists()
+        buildWeaponsLists()
     end
 end
 

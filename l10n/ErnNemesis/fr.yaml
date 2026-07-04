@@ -19,7 +19,7 @@ magickaScaling_description: "Les ennemis gagnent cette quantité de Magie par vi
 attributeScaling_name: "Progression des attributs"
 attributeScaling_description: "Les ennemis gagnent ce nombre de points d'attribut, répartis selon les préférences de leur classe, par victime."
 skillScaling_name: "Progression des compétences"
-skillScaling_description: "Les ennemis gagnent ce nombre de points dans leurs compétences majeures de classe par victime. Ne s'applique pas aux créatures."
+skillScaling_description: "Les ennemis gagnent ce nombre de points dans leurs compétences de classe par victime. Ne s'applique pas aux créatures."
 
 levelScaling_name: "Progression du niveau"
 levelScaling_description: "Augmente le niveau des ennemis à chaque mort. Cela ne modifie que le niveau, pas les compétences ni les attributs."

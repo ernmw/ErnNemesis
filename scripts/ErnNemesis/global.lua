@@ -115,7 +115,7 @@ local function onUpgradeGear(data)
             local oldItemScore = itemutil.weaponValue(oldItemRecord)
             local betterItemRecord = itemutil.getWeaponWithScore(oldItemRecord.type,
                 oldItemScore + (settings.gameplay.weaponScaling * data.totalKills))
-            if oldItemRecord.id ~= betterItemRecord.id then
+            if betterItemRecord and (oldItemRecord.id ~= betterItemRecord.id) then
                 local newItemInstance = world.createObject(betterItemRecord.id)
                 newItemInstance:moveInto(inventory)
                 newData.newItemsBySlot[slot] = newItemInstance
@@ -130,7 +130,7 @@ local function onUpgradeGear(data)
             local oldItemScore = itemutil.armorValue(oldItemRecord)
             local betterItemRecord = itemutil.getArmorWithScore(skill, slot,
                 oldItemScore + (settings.gameplay.armorScaling * data.totalKills))
-            if oldItemRecord.id ~= betterItemRecord.id then
+            if betterItemRecord and (oldItemRecord.id ~= betterItemRecord.id) then
                 local newItemInstance = world.createObject(betterItemRecord.id)
                 newItemInstance:moveInto(inventory)
                 newData.newItemsBySlot[slot] = newItemInstance
@@ -153,8 +153,6 @@ local function onUpgradeGear(data)
             types.Actor.EQUIPMENT_SLOT.LeftGauntlet,
             types.Actor.EQUIPMENT_SLOT.RightGauntlet,
             types.Actor.EQUIPMENT_SLOT.CarriedLeft,
-            types.Actor.EQUIPMENT_SLOT.LeftGauntlet,
-            types.Actor.EQUIPMENT_SLOT.RightGauntlet,
         }
         if not isBeast then
             table.insert(slots, types.Actor.EQUIPMENT_SLOT.Helmet)

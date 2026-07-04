@@ -191,8 +191,11 @@ local function getPreferredClassSkills(totalDesiredIncrease)
     local out = {}
     for _, skillName in ipairs(classRecord.majorSkills) do
         out[skillName] = math.ceil(0.7 * totalDesiredIncrease / #(classRecord.majorSkills))
+    end
+    for _, skillName in ipairs(classRecord.minorSkills) do
         out[skillName] = math.floor(0.3 * totalDesiredIncrease / #(classRecord.minorSkills))
     end
+
     return forceSumInValues(out, totalDesiredIncrease)
 end
 
@@ -298,7 +301,7 @@ end
 
 local function handleGear(oldKills, newKills)
     -- hand this all off to the global script
-    if settings.gameplay.weaponScaling > 0 or settings.gameplay.armorScaling or settings.gameplay.consumableScaling > 0 then
+    if settings.gameplay.weaponScaling > 0 or settings.gameplay.armorScaling > 0 then
         local itemsByID = {}
         for _, item in ipairs(pself.type.inventory(pself):getAll()) do
             itemsByID[item.id] = item
@@ -359,9 +362,7 @@ local function onUpgradeGearCompleted(data)
                 tostring(getRecord(item).name) .. " in slot " .. tostring(slot))
         end
     end
-    for _, id in ipairs(data.newConsumableIDs) do
-        table.insert(newIDs, id)
-    end
+
     -- equip!
     pself.type.setEquipment(pself, equipped)
 
