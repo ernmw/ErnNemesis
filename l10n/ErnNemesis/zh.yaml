@@ -1,0 +1,35 @@
+name: "宿敌"
+description: "击败你的敌人会变得更加强大。"
+
+missingFollowerDetectionUtilError: "错误！你需要安装 Follower Detection Util。"
+
+modSettingsAdminTitle: "管理"
+disable_name: "禁用模组"
+disable_description: "关闭此模组。"
+debugMode_name: "调试模式"
+debugMode_description: "启用详细日志。如果要报告问题，请开启此选项并附上日志。"
+
+modSettingsGameplayTitle: "游戏玩法"
+healthScaling_name: "生命值成长"
+healthScaling_description: "敌人每击杀一次可获得这么多生命值。"
+fatigueScaling_name: "耐力成长"
+fatigueScaling_description: "敌人每击杀一次可获得这么多耐力。"
+magickaScaling_name: "魔法值成长"
+magickaScaling_description: "敌人每击杀一次可获得这么多魔法值。"
+attributeScaling_name: "属性成长"
+attributeScaling_description: "敌人每击杀一次可获得这么多属性点，并根据职业偏好进行分配。"
+skillScaling_name: "技能成长"
+skillScaling_description: "敌人每击杀一次可在其职业主要技能中获得这么多技能点。不适用于生物。"
+
+levelScaling_name: "等级成长"
+levelScaling_description: "敌人每次击杀后提升等级。仅提升等级，不会修改技能或属性。"
+
+weaponScaling_name: "武器成长"
+weaponScaling_description: "敌人每次击杀后会获得更好的武器。大致相当于每次击杀提高武器的金币价值。不适用于生物。"
+armorScaling_name: "护甲成长"
+armorScaling_description: "敌人每次击杀后会获得更好的护甲。大致相当于每次击杀提高护甲的金币价值。不适用于生物。"
+consumableScaling_name: "消耗品成长"
+consumableScaling_description: "敌人每次击杀后会获得额外的药水或卷轴（最多 3 个）。大致相当于每次击杀提高物品的金币价值。不适用于生物。"
+
+spellScaling_name: "法术学习"
+spellScaling_description: "擅长魔法的敌人在每次击杀后会学会这么多个随机法术。不适用于生物。"

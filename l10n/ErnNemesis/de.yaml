@@ -1,0 +1,35 @@
+name: "Nemesis"
+description: "Gegner, die dich besiegen, werden stärker."
+
+missingFollowerDetectionUtilError: "FEHLER! Du musst das Follower Detection Util installieren."
+
+modSettingsAdminTitle: "Administration"
+disable_name: "Mod deaktivieren"
+disable_description: "Schaltet die Mod aus."
+debugMode_name: "Debug-Modus"
+debugMode_description: "Aktiviert ausführliche Protokollierung. Bitte aktiviere diese Option und füge das Protokoll bei, wenn du einen Fehler meldest."
+
+modSettingsGameplayTitle: "Gameplay"
+healthScaling_name: "Lebensskalierung"
+healthScaling_description: "Gegner erhalten pro Tötung so viele zusätzliche Lebenspunkte."
+fatigueScaling_name: "Ausdauerskalierung"
+fatigueScaling_description: "Gegner erhalten pro Tötung so viel zusätzliche Ausdauer."
+magickaScaling_name: "Magickaskalierung"
+magickaScaling_description: "Gegner erhalten pro Tötung so viel zusätzliche Magicka."
+attributeScaling_name: "Attributsskalierung"
+attributeScaling_description: "Gegner erhalten pro Tötung diese Anzahl an Attributspunkten, verteilt entsprechend den Klassenpräferenzen."
+skillScaling_name: "Fertigkeitenskalierung"
+skillScaling_description: "Gegner erhalten pro Tötung diese Anzahl an Fertigkeitspunkten in ihren Klassen-Hauptfertigkeiten. Gilt nicht für Kreaturen."
+
+levelScaling_name: "Stufenskalierung"
+levelScaling_description: "Erhöht die Stufe eines Gegners pro Tod. Dies verändert nur die Stufe, nicht Fertigkeiten oder Attribute."
+
+weaponScaling_name: "Waffenskalierung"
+weaponScaling_description: "Gegner erhalten pro Tötung bessere Waffen. Dies entspricht ungefähr einer Erhöhung des Goldwerts pro Tötung. Gilt nicht für Kreaturen."
+armorScaling_name: "Rüstungsskalierung"
+armorScaling_description: "Gegner erhalten pro Tötung bessere Rüstungen. Dies entspricht ungefähr einer Erhöhung des Goldwerts pro Tötung. Gilt nicht für Kreaturen."
+consumableScaling_name: "Verbrauchsgüterskalierung"
+consumableScaling_description: "Gegner erhalten pro Tötung zusätzliche Tränke oder Schriftrollen (max. 3). Dies entspricht ungefähr einer Erhöhung des Goldwerts pro Tötung. Gilt nicht für Kreaturen."
+
+spellScaling_name: "Zauberlernen"
+spellScaling_description: "Magiebegabte Gegner lernen pro Tod diese Anzahl zusätzlicher zufälliger Zauber. Gilt nicht für Kreaturen."

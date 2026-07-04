@@ -1,0 +1,35 @@
+name: "Nemesis"
+description: "Les ennemis qui vous terrassent deviennent plus puissants."
+
+missingFollowerDetectionUtilError: "ERREUR ! Vous devez installer Follower Detection Util."
+
+modSettingsAdminTitle: "Administration"
+disable_name: "Désactiver le mod"
+disable_description: "Désactive le mod."
+debugMode_name: "Mode débogage"
+debugMode_description: "Active une journalisation détaillée. Veuillez l'activer et joindre le journal si vous signalez un problème."
+
+modSettingsGameplayTitle: "Jouabilité"
+healthScaling_name: "Progression de la santé"
+healthScaling_description: "Les ennemis gagnent cette quantité de santé par victime."
+fatigueScaling_name: "Progression de la fatigue"
+fatigueScaling_description: "Les ennemis gagnent cette quantité de fatigue par victime."
+magickaScaling_name: "Progression de la Magie"
+magickaScaling_description: "Les ennemis gagnent cette quantité de Magie par victime."
+attributeScaling_name: "Progression des attributs"
+attributeScaling_description: "Les ennemis gagnent ce nombre de points d'attribut, répartis selon les préférences de leur classe, par victime."
+skillScaling_name: "Progression des compétences"
+skillScaling_description: "Les ennemis gagnent ce nombre de points dans leurs compétences majeures de classe par victime. Ne s'applique pas aux créatures."
+
+levelScaling_name: "Progression du niveau"
+levelScaling_description: "Augmente le niveau des ennemis à chaque mort. Cela ne modifie que le niveau, pas les compétences ni les attributs."
+
+weaponScaling_name: "Progression des armes"
+weaponScaling_description: "Les ennemis obtiennent de meilleures armes par victime. Cela correspond approximativement à une augmentation de leur valeur en or. Ne s'applique pas aux créatures."
+armorScaling_name: "Progression des armures"
+armorScaling_description: "Les ennemis obtiennent de meilleures armures par victime. Cela correspond approximativement à une augmentation de leur valeur en or. Ne s'applique pas aux créatures."
+consumableScaling_name: "Progression des consommables"
+consumableScaling_description: "Les ennemis obtiennent des potions ou des parchemins supplémentaires par victime (maximum 3). Cela correspond approximativement à une augmentation de leur valeur en or. Ne s'applique pas aux créatures."
+
+spellScaling_name: "Apprentissage des sorts"
+spellScaling_description: "Les ennemis adeptes de la magie apprennent ce nombre de sorts aléatoires supplémentaires à chaque mort. Ne s'applique pas aux créatures."
