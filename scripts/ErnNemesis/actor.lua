@@ -244,52 +244,9 @@ local function handleSpells(oldKills, newKills)
     learnRandomSpells(math.ceil(settings.gameplay.spellScaling * (newKills - oldKills)))
 end
 
----@return string|nil
-local function getBestArmorSkill()
-    local armorSkills = {
-        heavyarmor = pself.type.stats.skills.heavyarmor(pself),
-        mediumarmor = pself.type.stats.skills.mediumarmor(pself),
-        lightarmor = pself.type.stats.skills.lightarmor(pself),
-        unarmored = pself.type.stats.skills.unarmored(pself),
-    }
-    local skillName = nil
-    local highestScore = -100
-    for name, skill in pairs(armorSkills) do
-        if highestScore < skill.base then
-            highestScore = skill.base
-            skillName = name
-        end
-    end
-    return skillName
-end
-
----@return string|nil
-local function getBestWeaponSkill()
-    local weaponSkills = {
-        axe = pself.type.stats.skills.axe(pself),
-        bluntweapon = pself.type.stats.skills.bluntweapon(pself),
-        longblade = pself.type.stats.skills.longblade(pself),
-        marksman = pself.type.stats.skills.marksman(pself),
-        shortblade = pself.type.stats.skills.shortblade(pself),
-        spear = pself.type.stats.skills.spear(pself),
-        handtohand = pself.type.stats.skills.handtohand(pself),
-    }
-    local skillName = nil
-    local highestScore = -100
-    for name, skill in pairs(weaponSkills) do
-        if highestScore < skill.base then
-            highestScore = skill.base
-            skillName = name
-        end
-    end
-    return skillName
-end
-
 ---@class UpgradeGearData
 ---@field actor table
 ---@field oldGear {[string]:table}
----@field weaponSkill string?
----@field armorSkill string?
 ---@field deltaKills number
 
 local function handleGear(oldKills, newKills)
@@ -310,8 +267,6 @@ local function handleGear(oldKills, newKills)
         local data = {
             actor = pself.object,
             oldGear = oldGear,
-            weaponSkill = getBestWeaponSkill(),
-            armorSkill = getBestArmorSkill(),
             deltaKills = newKills - oldKills,
         }
 
