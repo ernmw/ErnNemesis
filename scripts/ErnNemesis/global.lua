@@ -115,9 +115,12 @@ local function onUpgradeGear(data)
             local betterItemRecord = itemutil.getWeaponWithScore(oldItemRecord.type,
                 oldItemScore + (settings.gameplay.weaponScaling * data.deltaKills))
             if betterItemRecord and (oldItemRecord.id ~= betterItemRecord.id) then
-                local newItemInstance = world.createObject(betterItemRecord.id)
-                newItemInstance:moveInto(inventory)
-                newData.newItemsBySlot[slot] = newItemInstance
+                local betterItemScore = itemutil.weaponValue(betterItemRecord)
+                if betterItemScore > oldItemScore then
+                    local newItemInstance = world.createObject(betterItemRecord.id)
+                    newItemInstance:moveInto(inventory)
+                    newData.newItemsBySlot[slot] = newItemInstance
+                end
             end
         end
     end
@@ -130,9 +133,12 @@ local function onUpgradeGear(data)
             local betterItemRecord = itemutil.getArmorWithScore(skill, slot,
                 oldItemScore + (settings.gameplay.armorScaling * data.deltaKills))
             if betterItemRecord and (oldItemRecord.id ~= betterItemRecord.id) then
-                local newItemInstance = world.createObject(betterItemRecord.id)
-                newItemInstance:moveInto(inventory)
-                newData.newItemsBySlot[slot] = newItemInstance
+                local betterItemScore = itemutil.armorValue(betterItemRecord)
+                if betterItemScore > oldItemScore then
+                    local newItemInstance = world.createObject(betterItemRecord.id)
+                    newItemInstance:moveInto(inventory)
+                    newData.newItemsBySlot[slot] = newItemInstance
+                end
             end
         end
     end
