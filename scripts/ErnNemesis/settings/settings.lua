@@ -139,33 +139,24 @@ local function globalInit()
             key = "armorScaling",
             name = "armorScaling_name",
             description = "armorScaling_description",
-            default = 10,
-            renderer = "number",
-            argument = {
-                integer = true,
-                min = 0
-            }
-        }, {
-            key = "consumableScaling",
-            name = "consumableScaling_name",
-            description = "consumableScaling_description",
-            default = 15,
-            renderer = "number",
-            argument = {
-                integer = true,
-                min = 0
-            }
-        }, {
-            key = "spellScaling",
-            name = "spellScaling_name",
-            description = "spellScaling_description",
-            default = 2,
+            default = 0,
             renderer = "number",
             argument = {
                 integer = true,
                 min = 0
             }
         },
+            {
+                key = "spellScaling",
+                name = "spellScaling_name",
+                description = "spellScaling_description",
+                default = 2,
+                renderer = "number",
+                argument = {
+                    integer = true,
+                    min = 0
+                }
+            },
         }
     }
 end

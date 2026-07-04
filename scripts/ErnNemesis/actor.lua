@@ -219,6 +219,7 @@ local function learnRandomSpells(count)
     for i = 1, #allSpells, 1 do
         local spell = allSpells[i]
         if (not spell.isAutocalc or spell.cost > 10) and (not spell.alwaysSucceedFlag) and (spell.type == core.magic.SPELL_TYPE.Spell) and (actorSpells[spell.id] == nil) then
+            --- TODO: only consider spells that have an effect with a class major magical skill
             table.insert(spells, spell)
         end
     end
@@ -382,14 +383,6 @@ local function onActive()
     end
 end
 
-local function onDied()
-    if settings.admin.disable then
-        return
-    end
-    core.sendGlobalEvent(MOD_NAME .. "onNemesisDied",
-        { actor = pself.object, kills = persist.kills })
-end
-
 local function onKillCountUpdate(data)
     settings.debugPrint(getRecord(pself.object).name ..
         " has killed the player " ..
@@ -429,6 +422,5 @@ return {
     eventHandlers = {
         [MOD_NAME .. "onKillCountUpdate"] = onKillCountUpdate,
         [MOD_NAME .. "onUpgradeGearCompleted"] = onUpgradeGearCompleted,
-        Died = onDied,
     },
 }

@@ -41,6 +41,12 @@ local function onActive(data)
     local kills = 0
     for _, player in ipairs(world.players) do
         local snapshot = nemesisData:asTable()[getRecord(player).name]
+        if not snapshot then
+            snapshot = {}
+        end
+        if not snapshot[data.actor.id] then
+            snapshot[data.actor.id] = 0
+        end
         if snapshot[data.actor.id] then
             kills = kills + snapshot[data.actor.id]
         end
@@ -51,19 +57,6 @@ local function onActive(data)
 
         --- Persist kill count on actor
         data.actor:sendEvent(MOD_NAME .. "onKillCountUpdate", { kills = kills })
-    end
-end
-
-local function onNemesisDied(data)
-    settings.debugPrint("Global onNemesisDied: " .. aux_util.deepToString(data, 3))
-    for _, player in ipairs(world.players) do
-        local key = getRecord(player).name
-        local snapshot = nemesisData:asTable()[key]
-        if snapshot[data.actor.id] then
-            snapshot[data.actor.id] = nil
-        end
-        settings.debugPrint("New nemesis data: " .. aux_util.deepToString(snapshot, 3))
-        nemesisData:set(key, snapshot)
     end
 end
 
@@ -179,7 +172,6 @@ return {
     eventHandlers = {
         [MOD_NAME .. "onActive"] = onActive,
         [MOD_NAME .. "onPlayerDied"] = onPlayerDied,
-        [MOD_NAME .. "onNemesisDied"] = onNemesisDied,
         [MOD_NAME .. "onClearState"] = onClearState,
         [MOD_NAME .. "onUpgradeGear"] = onUpgradeGear,
     },
