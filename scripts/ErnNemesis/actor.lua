@@ -197,8 +197,8 @@ local function getPreferredClassSkills(totalDesiredIncrease)
 end
 
 local function handleSkills(oldKills, newKills)
-    if settings.gameplay.attributeScaling > 0 then
-        local scaleAmount = settings.gameplay.attributeScaling * (newKills - oldKills)
+    if settings.gameplay.skillScaling > 0 then
+        local scaleAmount = settings.gameplay.skillScaling * (newKills - oldKills)
         local isCreature = types.Creature.objectIsInstance(pself)
         if not isCreature then
             local skillCounts = getPreferredClassSkills(scaleAmount)

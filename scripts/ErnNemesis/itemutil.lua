@@ -201,11 +201,17 @@ end
 
 local function getWeaponWithScore(weaponType, score)
     local idx = binarySearchInsertIndex(weaponsByType[weaponType], score, weaponValue)
+    if idx > #weaponsByType[weaponType] then
+        idx = #weaponsByType[weaponType]
+    end
     return weaponsByType[weaponType][idx]
 end
 
 local function getArmorWithScore(skill, slot, score)
     local idx = binarySearchInsertIndex(armorBySlotBySkill[skill][slot], score, armorValue)
+    if idx > #armorBySlotBySkill[skill][slot] then
+        idx = #armorBySlotBySkill[skill][slot]
+    end
     return armorBySlotBySkill[skill][slot][idx]
 end
 
