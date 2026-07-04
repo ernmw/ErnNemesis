@@ -15,15 +15,14 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
-local MOD_NAME   = require("scripts.ErnNemesis.ns")
-local interfaces = require('openmw.interfaces')
-local storage    = require('openmw.storage')
-local world      = require('openmw.world')
-local async      = require('openmw.async')
-local types      = require('openmw.types')
-local aux_util   = require('openmw_aux.util')
-local settings   = require("scripts.ErnNemesis.settings.settings")
-local itemutil   = require("scripts.ErnNemesis.itemutil")
+local MOD_NAME = require("scripts.ErnNemesis.ns")
+local storage  = require('openmw.storage')
+local world    = require('openmw.world')
+local async    = require('openmw.async')
+local types    = require('openmw.types')
+local aux_util = require('openmw_aux.util')
+local settings = require("scripts.ErnNemesis.settings.settings")
+local itemutil = require("scripts.ErnNemesis.itemutil")
 
 local function getRecord(obj)
     return obj.type.record(obj)

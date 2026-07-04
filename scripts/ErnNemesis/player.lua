@@ -15,15 +15,12 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
-local core       = require('openmw.core')
-local types      = require('openmw.types')
-local pself      = require('openmw.self')
-local async      = require('openmw.async')
-local MOD_NAME   = require("scripts.ErnNemesis.ns")
-local interfaces = require('openmw.interfaces')
-local storage    = require('openmw.storage')
-local aux_util   = require('openmw_aux.util')
-
+local core                  = require('openmw.core')
+local types                 = require('openmw.types')
+local pself                 = require('openmw.self')
+local async                 = require('openmw.async')
+local MOD_NAME              = require("scripts.ErnNemesis.ns")
+local interfaces            = require('openmw.interfaces')
 
 local FollowerDetectionUtil = interfaces.FollowerDetectionUtil
 

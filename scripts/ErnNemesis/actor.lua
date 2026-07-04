@@ -15,20 +15,13 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
-local core       = require('openmw.core')
-local types      = require('openmw.types')
-local pself      = require('openmw.self')
-local async      = require('openmw.async')
-local MOD_NAME   = require("scripts.ErnNemesis.ns")
-local interfaces = require('openmw.interfaces')
-local storage    = require('openmw.storage')
-local nearby     = require('openmw.nearby')
-local aux_util   = require('openmw_aux.util')
-local settings   = require("scripts.ErnNemesis.settings.settings")
-local shuffle    = require("scripts.ErnNemesis.shuffle")
-
--- shouldn't pull in global storage in non-global contexts.
---local nemesisData = storage.globalSection(MOD_NAME .. "NemesisData")
+local core     = require('openmw.core')
+local types    = require('openmw.types')
+local pself    = require('openmw.self')
+local MOD_NAME = require("scripts.ErnNemesis.ns")
+local aux_util = require('openmw_aux.util')
+local settings = require("scripts.ErnNemesis.settings.settings")
+local shuffle  = require("scripts.ErnNemesis.shuffle")
 
 ---@class Persist
 ---@field kills number Number of persisted kills.
