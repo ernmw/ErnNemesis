@@ -19,7 +19,7 @@ magickaScaling_description: "Enemies gain this much magicka per kill."
 attributeScaling_name: "Attribute Scaling"
 attributeScaling_description: "Enemies gain this number of attribute points, distributed by class preferences, per kill."
 skillScaling_name: "Skill Scaling"
-skillScaling_description: "Turn on enemy Skill scaling per death. Doesn't apply to Creatures."
+skillScaling_description: "Enemies gain this number of skill points in their Class Major Skills, per kill. Doesn't apply to Creatures."
 
 levelScaling_name: "Level Scaling"
 levelScaling_description: "Increase enemy level per death. This only modifies the level; not skills or attributes."
