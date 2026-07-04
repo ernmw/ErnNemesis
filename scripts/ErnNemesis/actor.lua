@@ -290,7 +290,7 @@ end
 
 ---@class UpgradeGearData
 ---@field actor table
----@field oldGear string[]
+---@field oldGear {[string]:table}
 ---@field weaponSkill string?
 ---@field armorSkill string?
 ---@field totalKills number
@@ -324,6 +324,8 @@ end
 
 ---@param data UpgradeGearCompletedData
 local function onUpgradeGearCompleted(data)
+    settings.debugPrint("onUpgradeGearCompleted for " ..
+        getRecord(pself.object).id .. ": " .. aux_util.deepToString(data, 5))
     --- equip / persist new items we got from global
     local itemsByID = {}
     for _, item in ipairs(pself.type.inventory(pself):getAll()) do
@@ -342,13 +344,19 @@ local function onUpgradeGearCompleted(data)
     --- this is called after global has inserted new gear
     --- persist the new gear IDs so we can delete them later, if needed.
     local newIDs = {}
-    for slot, id in pairs(data.newIDsBySlot) do
-        table.insert(newIDs, id)
-        equipped[slot] = itemsByID[id]
+    for slot, item in pairs(data.newItemsBySlot) do
+        if item:isValid() then
+            table.insert(newIDs, item.id)
+            equipped[slot] = item
 
-        settings.debugPrint(getRecord(pself.object).name ..
-            " equipped new item " ..
-            tostring(getRecord(itemsByID[id]).name) .. " in slot " .. tostring(slot))
+            settings.debugPrint(getRecord(pself.object).name ..
+                " equipped new item " ..
+                tostring(getRecord(item).name) .. " in slot " .. tostring(slot))
+        else
+            settings.debugPrint(getRecord(pself.object).name ..
+                " failed to equip new item " ..
+                tostring(getRecord(item).name) .. " in slot " .. tostring(slot))
+        end
     end
     for _, id in ipairs(data.newConsumableIDs) do
         table.insert(newIDs, id)

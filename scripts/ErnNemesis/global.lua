@@ -19,6 +19,7 @@ local MOD_NAME   = require("scripts.ErnNemesis.ns")
 local interfaces = require('openmw.interfaces')
 local storage    = require('openmw.storage')
 local world      = require('openmw.world')
+local async      = require('openmw.async')
 local types      = require('openmw.types')
 local aux_util   = require('openmw_aux.util')
 local settings   = require("scripts.ErnNemesis.settings.settings")
@@ -85,8 +86,13 @@ local function onClearState()
 end
 
 
+local sendGearNotification = async:registerTimerCallback('sendGearNotification', function(data)
+    data.actor:sendEvent(MOD_NAME .. "onUpgradeGearCompleted", data.newData)
+    settings.debugPrint("Nemesis gear for " .. getRecord(data.actor).id .. ": " .. aux_util.deepToString(data.newData, 3))
+end)
+
 ---@class UpgradeGearCompletedData
----@field newIDsBySlot {[number]: string}
+---@field newItemsBySlot {[number]: table}
 ---@field newConsumableIDs string[]
 
 ---@param data UpgradeGearData
@@ -97,12 +103,13 @@ local function onUpgradeGear(data)
     itemutil.build()
 
     -- delete old items
-    for _, item in ipairs(data.oldGear) do
+    for _, item in pairs(data.oldGear) do
+        item:remove()
     end
 
     ---@type UpgradeGearCompletedData
     local newData = {
-        newIDsBySlot = {},
+        newItemsBySlot = {},
         newConsumableIDs = {},
     }
 
@@ -118,7 +125,7 @@ local function onUpgradeGear(data)
             if oldItemRecord.id ~= betterItemRecord.id then
                 local newItemInstance = world.createObject(betterItemRecord.id)
                 newItemInstance:moveInto(inventory)
-                newData.newIDsBySlot[slot] = newItemInstance.id
+                newData.newItemsBySlot[slot] = newItemInstance
             end
         end
     end
@@ -133,7 +140,7 @@ local function onUpgradeGear(data)
             if oldItemRecord.id ~= betterItemRecord.id then
                 local newItemInstance = world.createObject(betterItemRecord.id)
                 newItemInstance:moveInto(inventory)
-                newData.newIDsBySlot[slot] = newItemInstance.id
+                newData.newItemsBySlot[slot] = newItemInstance
             end
         end
     end
@@ -144,11 +151,28 @@ local function onUpgradeGear(data)
     end
 
     if settings.gameplay.armorScaling > 0 and data.armorSkill and data.armorSkill ~= "unarmored" then
-        upgradeArmor(data.armorSkill, types.Actor.EQUIPMENT_SLOT.Cuirass)
+        local isBeast = types.NPC.races.records[getRecord(data.actor).race].isBeast
+        local slots = {
+            types.Actor.EQUIPMENT_SLOT.Cuirass,
+            types.Actor.EQUIPMENT_SLOT.Greaves,
+            types.Actor.EQUIPMENT_SLOT.LeftPauldron,
+            types.Actor.EQUIPMENT_SLOT.RightPauldron,
+            types.Actor.EQUIPMENT_SLOT.LeftGauntlet,
+            types.Actor.EQUIPMENT_SLOT.RightGauntlet,
+            types.Actor.EQUIPMENT_SLOT.CarriedLeft,
+            types.Actor.EQUIPMENT_SLOT.LeftGauntlet,
+            types.Actor.EQUIPMENT_SLOT.RightGauntlet,
+        }
+        if not isBeast then
+            table.insert(slots, types.Actor.EQUIPMENT_SLOT.Helmet)
+            table.insert(slots, types.Actor.EQUIPMENT_SLOT.Boots)
+        end
+        for _, slot in ipairs(slots) do
+            upgradeArmor(data.armorSkill, slot)
+        end
     end
-
-    data.actor:sendEvent(MOD_NAME .. "onUpgradeGearCompleted", newData)
-    settings.debugPrint("Nemesis gear for " .. getRecord(data.actor).id .. ": " .. aux_util.deepToString(newData, 3))
+    -- this event needs to be delayed by 1 frame.
+    async:newSimulationTimer(0.001, sendGearNotification, { actor = data.actor, newData = newData })
 end
 
 return {
