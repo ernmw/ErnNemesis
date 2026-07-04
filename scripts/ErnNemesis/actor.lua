@@ -297,7 +297,7 @@ end
 ---@field oldGear {[string]:table}
 ---@field weaponSkill string?
 ---@field armorSkill string?
----@field totalKills number
+---@field deltaKills number
 
 local function handleGear(oldKills, newKills)
     -- hand this all off to the global script
@@ -319,7 +319,7 @@ local function handleGear(oldKills, newKills)
             oldGear = oldGear,
             weaponSkill = getBestWeaponSkill(),
             armorSkill = getBestArmorSkill(),
-            totalKills = newKills,
+            deltaKills = newKills - oldKills,
         }
 
         core.sendGlobalEvent(MOD_NAME .. "onUpgradeGear", data)
