@@ -97,6 +97,16 @@ end)
 ---@field newItemsBySlot {[number]: table}
 ---@field newConsumableIDs string[]
 
+local function getItemsByIDMap(actor)
+    local itemsByID = {}
+    for _, item in ipairs(actor.type.inventory(actor):getAll()) do
+        if item and item:isValid() then
+            itemsByID[item.id] = item
+        end
+    end
+    return itemsByID
+end
+
 ---@param data UpgradeGearData
 local function onUpgradeGear(data)
     --- 1. delete the old gear
@@ -117,6 +127,18 @@ local function onUpgradeGear(data)
 
     local inventory = types.Actor.inventory(data.actor)
 
+    local itemsByID = getItemsByIDMap(data.actor)
+
+    local handleOriginalGearInSlot = function(slot)
+        local oldGear = itemsByID[data.originalGear[slot]]
+        if settings.equipment.upgradeStrategy == "permanent" and oldGear then
+            if itemutil.allowed(oldGear.record) then
+                settings.debugPrint("Deleting original gear from " ..
+                    getRecord(data.actor).id .. ": " .. oldGear.record.id)
+            end
+        end
+    end
+
     local upgradeWeapon = function(slot)
         local oldItem = types.Actor.getEquipment(data.actor, slot)
         if oldItem then
@@ -127,9 +149,11 @@ local function onUpgradeGear(data)
             if betterItemRecord and (oldItemRecord.id ~= betterItemRecord.id) then
                 local betterItemScore = itemutil.weaponValue(betterItemRecord)
                 if betterItemScore > oldItemScore then
+                    -- we are doing a replacement
                     local newItemInstance = world.createObject(betterItemRecord.id)
                     newItemInstance:moveInto(inventory)
                     newData.newItemsBySlot[slot] = newItemInstance
+                    handleOriginalGearInSlot(slot)
                 end
             end
         end
@@ -148,6 +172,7 @@ local function onUpgradeGear(data)
                     local newItemInstance = world.createObject(betterItemRecord.id)
                     newItemInstance:moveInto(inventory)
                     newData.newItemsBySlot[slot] = newItemInstance
+                    handleOriginalGearInSlot(slot)
                 end
             end
         end

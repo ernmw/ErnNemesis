@@ -28,6 +28,66 @@ local adminGroupKey     = groupKey("Admin")
 local gameplayGroupKey  = groupKey("Gameplay")
 local equipmentGroupKey = groupKey("Equipment")
 
+local lookupFuncTable   = {
+    __index = function(table, key)
+        if not rawget(table, "section") then
+            table.section = storage.globalSection(table.groupKey)
+            table.cached = table.section:asTable()
+
+            table.section:subscribe(async:callback(function(_, key)
+                table.cached[key] = table.section:get(key)
+            end))
+        end
+
+        if key == "subscribe" then
+            return function(callback)
+                print("Subscribed to " .. tostring(table.groupKey) .. ".")
+                return table.section.subscribe(table.section, callback)
+            end
+        elseif key == "section" then
+            return table.section
+        elseif key == "groupKey" then
+            return table.groupKey
+        end
+        -- fall through to cached settings section
+        local val = table.cached[key]
+        if val ~= nil then
+            return val
+        else
+            --print("cached settings: " .. aux_util.deepToString(table.cached, 3))
+            --print("current settings: " .. aux_util.deepToString(table.section:asTable(), 3))
+            error("unknown setting: " .. tostring(table.groupKey) .. " - " .. tostring(key))
+            return nil
+        end
+    end,
+}
+
+--- lazilly-inited cached settings container
+---@param groupKeyParam string
+---@return table
+local function newContainer(groupKeyParam)
+    local container = {
+        groupKey = groupKeyParam,
+    }
+    setmetatable(container, lookupFuncTable)
+    return container
+end
+
+local equipmentContainer = newContainer(equipmentGroupKey)
+local gameplayContainer = newContainer(gameplayGroupKey)
+local adminContainer = newContainer(adminGroupKey)
+
+local function debugPrint(str, ...)
+    if adminContainer.debugMode then
+        local arg = { ... }
+        if arg ~= nil then
+            print(string.format("DEBUG: " .. str, unpack(arg)))
+        else
+            print("DEBUG: " .. str)
+        end
+    end
+end
+
 local function playerInit()
     interfaces.Settings.registerPage {
         key = MOD_NAME,
@@ -61,6 +121,8 @@ local function globalInit()
         }
     }
 
+    local strategies = { "ephemeral", "permanent" }
+
     interfaces.Settings.registerGroup {
         key = equipmentGroupKey,
         l10n = MOD_NAME,
@@ -89,17 +151,18 @@ local function globalInit()
                 min = 0
             }
         }, {
-            key = "deleteOnDeath",
-            name = "deleteOnDeath_name",
-            description = "deleteOnDeath_description",
-            default = true,
-            renderer = "checkbox"
-        }, {
             key = "ignoreItemAllowlist",
             name = "ignoreItemAllowlist_name",
             description = "ignoreItemAllowlist_description",
             default = false,
             renderer = "checkbox"
+        }, {
+            key = "upgradeStrategy",
+            name = "upgradeStrategy_name",
+            description = "upgradeStrategy_description",
+            argument = { items = strategies, l10n = MOD_NAME },
+            default = strategies[1],
+            renderer = "select",
         }
         }
     }
@@ -192,75 +255,9 @@ local function globalInit()
             description = "ignoreNPCBlocklist_description",
             default = false,
             renderer = "checkbox"
-        }, {
-            key = "aggressiveActorsOnly",
-            name = "aggressiveActorsOnly_name",
-            description = "aggressiveActorsOnly_description",
-            default = true,
-            renderer = "checkbox"
         },
         }
     }
-end
-
-local lookupFuncTable = {
-    __index = function(table, key)
-        if not rawget(table, "section") then
-            table.section = storage.globalSection(table.groupKey)
-            table.cached = table.section:asTable()
-
-            table.section:subscribe(async:callback(function(_, key)
-                table.cached[key] = table.section:get(key)
-            end))
-        end
-
-        if key == "subscribe" then
-            return function(callback)
-                print("Subscribed to " .. tostring(table.groupKey) .. ".")
-                return table.section.subscribe(table.section, callback)
-            end
-        elseif key == "section" then
-            return table.section
-        elseif key == "groupKey" then
-            return table.groupKey
-        end
-        -- fall through to cached settings section
-        local val = table.cached[key]
-        if val ~= nil then
-            return val
-        else
-            --print("cached settings: " .. aux_util.deepToString(table.cached, 3))
-            --print("current settings: " .. aux_util.deepToString(table.section:asTable(), 3))
-            error("unknown setting: " .. tostring(table.groupKey) .. " - " .. tostring(key))
-            return nil
-        end
-    end,
-}
-
---- lazilly-inited cached settings container
----@param groupKeyParam string
----@return table
-local function newContainer(groupKeyParam)
-    local container = {
-        groupKey = groupKeyParam,
-    }
-    setmetatable(container, lookupFuncTable)
-    return container
-end
-
-local equipmentContainer = newContainer(equipmentGroupKey)
-local gameplayContainer = newContainer(gameplayGroupKey)
-local adminContainer = newContainer(adminGroupKey)
-
-local function debugPrint(str, ...)
-    if adminContainer.debugMode then
-        local arg = { ... }
-        if arg ~= nil then
-            print(string.format("DEBUG: " .. str, unpack(arg)))
-        else
-            print("DEBUG: " .. str)
-        end
-    end
 end
 
 ---@alias SettingContainer table

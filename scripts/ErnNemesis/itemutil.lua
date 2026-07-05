@@ -223,6 +223,10 @@ local function getArmorWithScore(skill, slot, score)
     return armorBySlotBySkill[skill][slot][idx]
 end
 
+local function allowed(recordID)
+    return allowedItems[recordID]
+end
+
 return {
     getArmorSkill = getArmorSkill,
     armorBySlotBySkill = armorBySlotBySkill,
@@ -233,4 +237,5 @@ return {
     getWeaponWithScore = getWeaponWithScore,
     getArmorWithScore = getArmorWithScore,
     armorTypeToSlot = armorTypeToSlot,
+    allowed = allowed,
 }

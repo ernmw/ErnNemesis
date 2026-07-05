@@ -285,6 +285,7 @@ end
 ---@field oldGear {[string]:table}
 ---@field deltaKills number
 ---@field armorSkill string?
+---@field originalGear {[number]:string}
 
 local function handleGear(oldKills, newKills)
     -- hand this all off to the global script
@@ -300,6 +301,7 @@ local function handleGear(oldKills, newKills)
             oldGear = oldGear,
             deltaKills = newKills - oldKills,
             armorSkill = getBestArmorSkill(),
+            originalGear = persist.originalEquipmentBySlot,
         }
 
         core.sendGlobalEvent(MOD_NAME .. "onUpgradeGear", data)
@@ -420,7 +422,7 @@ local function onKillCountUpdate(data)
 end
 
 local function onDied()
-    if settings.equipment.deleteOnDeath and persist.kills > 0 then
+    if settings.equipment.upgradeStrategy == "ephemeral" and persist.kills > 0 then
         settings.debugPrint(getRecord(pself.object).name ..
             " deleting Nemesis equipment")
         local itemsByID = getItemsByIDMap()
