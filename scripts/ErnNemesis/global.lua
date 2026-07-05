@@ -38,7 +38,7 @@ local function isAggressive(actor)
     if settings.gameplay.ignoreNPCBlocklist then
         return true
     end
-    return types.Actor.stats.ai.fight(actor).base >= 60
+    return types.Actor.stats.ai.fight(actor).base >= 40
 end
 
 local function onActive(data)
