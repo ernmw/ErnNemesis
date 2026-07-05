@@ -410,6 +410,16 @@ local function onKillCountUpdate(data)
     handleSpells(persist.kills, data.kills)
     handleGear(persist.kills, data.kills)
 
+    --- apply the nemesis ability when they first become a nemesis
+    --- test with:
+    --[[
+    for _, effect in pairs(types.Actor.activeEffects(self)) do print(effect.name or effect.id, "Mag:", effect.magnitude, "Dur:", effect.durationLeft) end
+    ]] --
+    if persist.kills == 0 then
+        local actorSpells = types.Actor.spells(pself)
+        actorSpells:add(core.magic.spells.records.ErnNemesis1)
+    end
+
     if settings.gameplay.levelScaling then
         local levelStat = pself.type.stats.level(pself)
         levelStat.current = levelStat.current + (data.kills - persist.kills)
