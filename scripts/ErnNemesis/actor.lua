@@ -15,13 +15,14 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
-local core     = require('openmw.core')
-local types    = require('openmw.types')
-local pself    = require('openmw.self')
-local MOD_NAME = require("scripts.ErnNemesis.ns")
-local aux_util = require('openmw_aux.util')
-local settings = require("scripts.ErnNemesis.settings.settings")
-local shuffle  = require("scripts.ErnNemesis.shuffle")
+local core      = require('openmw.core')
+local types     = require('openmw.types')
+local pself     = require('openmw.self')
+local MOD_NAME  = require("scripts.ErnNemesis.ns")
+local aux_util  = require('openmw_aux.util')
+local settings  = require("scripts.ErnNemesis.settings.settings")
+local shuffle   = require("scripts.ErnNemesis.shuffle")
+local animation = require('openmw.animation')
 
 ---@class Persist
 ---@field kills number Number of persisted kills.
@@ -322,11 +323,19 @@ local function onUpgradeGearCompleted(data)
     persist.gearIDs = newIDs
 end
 
+local function applyCrown()
+    if persist.kills > 0 then
+        animation.addVfx(pself, "Meshes\\nemesis_crown.nif",
+            { loop = true, boneName = "bip01 head", vfxId = "nemesis_crown", useAmbientLight = false })
+    end
+end
+
 local function onActive()
     if settings.admin.disable then
         return
     end
     if pself.object:isValid() and not types.Actor.isDead(pself.object) then
+        applyCrown()
         core.sendGlobalEvent(MOD_NAME .. "onActive",
             { actor = pself.object, kills = persist.kills })
     end
