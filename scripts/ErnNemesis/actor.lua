@@ -245,6 +245,29 @@ local function handleSpells(oldKills, newKills)
     learnRandomSpells(math.ceil(settings.gameplay.spellScaling * (newKills - oldKills)))
 end
 
+---@return string|nil
+local function getBestArmorSkill()
+    local isCreature = types.Creature.objectIsInstance(pself)
+    if isCreature then
+        return nil
+    end
+    local armorSkills = {
+        heavyarmor = pself.type.stats.skills.heavyarmor(pself),
+        mediumarmor = pself.type.stats.skills.mediumarmor(pself),
+        lightarmor = pself.type.stats.skills.lightarmor(pself),
+        unarmored = pself.type.stats.skills.unarmored(pself),
+    }
+    local skillName = nil
+    local highestScore = -100
+    for name, skill in pairs(armorSkills) do
+        if highestScore < skill.base then
+            highestScore = skill.base
+            skillName = name
+        end
+    end
+    return skillName
+end
+
 local function getItemsByIDMap()
     local itemsByID = {}
     for _, item in ipairs(pself.type.inventory(pself):getAll()) do
@@ -259,6 +282,7 @@ end
 ---@field actor table
 ---@field oldGear {[string]:table}
 ---@field deltaKills number
+---@field armorSkill string?
 
 local function handleGear(oldKills, newKills)
     -- hand this all off to the global script
@@ -273,6 +297,7 @@ local function handleGear(oldKills, newKills)
             actor = pself.object,
             oldGear = oldGear,
             deltaKills = newKills - oldKills,
+            armorSkill = getBestArmorSkill(),
         }
 
         core.sendGlobalEvent(MOD_NAME .. "onUpgradeGear", data)
