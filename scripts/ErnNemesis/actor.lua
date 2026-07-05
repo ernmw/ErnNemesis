@@ -252,7 +252,7 @@ end
 
 local function handleGear(oldKills, newKills)
     -- hand this all off to the global script
-    if settings.gameplay.weaponScaling > 0 or settings.gameplay.armorScaling > 0 then
+    if settings.equipment.weaponScaling > 0 or settings.equipment.armorScaling > 0 then
         local itemsByID = {}
         for _, item in ipairs(pself.type.inventory(pself):getAll()) do
             itemsByID[item.id] = item

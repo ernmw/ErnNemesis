@@ -24,8 +24,9 @@ local function groupKey(groupName)
     return 'Settings/' .. MOD_NAME .. '/' .. groupName
 end
 
-local adminGroupKey    = groupKey("Admin")
-local gameplayGroupKey = groupKey("Gameplay")
+local adminGroupKey     = groupKey("Admin")
+local gameplayGroupKey  = groupKey("Gameplay")
+local equipmentGroupKey = groupKey("Equipment")
 
 local function playerInit()
     interfaces.Settings.registerPage {
@@ -57,6 +58,37 @@ local function globalInit()
             default = false,
             renderer = "checkbox"
         }
+        }
+    }
+
+    interfaces.Settings.registerGroup {
+        key = equipmentGroupKey,
+        l10n = MOD_NAME,
+        name = "modSettingsEquipmentTitle",
+        page = MOD_NAME,
+        permanentStorage = true,
+        order = 14,
+        settings = { {
+            key = "weaponScaling",
+            name = "weaponScaling_name",
+            description = "weaponScaling_description",
+            default = 5,
+            renderer = "number",
+            argument = {
+                integer = true,
+                min = 0
+            }
+        }, {
+            key = "armorScaling",
+            name = "armorScaling_name",
+            description = "armorScaling_description",
+            default = 0,
+            renderer = "number",
+            argument = {
+                integer = true,
+                min = 0
+            }
+        },
         }
     }
 
@@ -125,26 +157,6 @@ local function globalInit()
             description = "levelScaling_description",
             default = true,
             renderer = "checkbox"
-        }, {
-            key = "weaponScaling",
-            name = "weaponScaling_name",
-            description = "weaponScaling_description",
-            default = 5,
-            renderer = "number",
-            argument = {
-                integer = true,
-                min = 0
-            }
-        }, {
-            key = "armorScaling",
-            name = "armorScaling_name",
-            description = "armorScaling_description",
-            default = 0,
-            renderer = "number",
-            argument = {
-                integer = true,
-                min = 0
-            }
         },
             {
                 key = "spellScaling",
@@ -212,6 +224,7 @@ local function newContainer(groupKeyParam)
     return container
 end
 
+local equipmentContainer = newContainer(equipmentGroupKey)
 local gameplayContainer = newContainer(gameplayGroupKey)
 local adminContainer = newContainer(adminGroupKey)
 
@@ -233,11 +246,13 @@ end
 ---@field globalInit fun()
 ---@field admin SettingContainer
 ---@field gameplay SettingContainer
+---@field equipment SettingContainer
 
 ---@type Settings
 return {
     playerInit = playerInit,
     globalInit = globalInit,
+    equipment = equipmentContainer,
     gameplay = gameplayContainer,
     admin = adminContainer,
     debugPrint = debugPrint,

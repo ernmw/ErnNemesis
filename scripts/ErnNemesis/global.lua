@@ -113,7 +113,7 @@ local function onUpgradeGear(data)
             local oldItemRecord = getRecord(oldItem)
             local oldItemScore = itemutil.weaponValue(oldItemRecord)
             local betterItemRecord = itemutil.getWeaponWithScore(oldItemRecord.type,
-                oldItemScore + (settings.gameplay.weaponScaling * data.deltaKills))
+                oldItemScore + (settings.equipment.weaponScaling * data.deltaKills))
             if betterItemRecord and (oldItemRecord.id ~= betterItemRecord.id) then
                 local betterItemScore = itemutil.weaponValue(betterItemRecord)
                 if betterItemScore > oldItemScore then
@@ -131,7 +131,7 @@ local function onUpgradeGear(data)
             local oldItemRecord = getRecord(oldItem)
             local oldItemScore = itemutil.armorValue(oldItemRecord)
             local betterItemRecord = itemutil.getArmorWithScore(skill, slot,
-                oldItemScore + (settings.gameplay.armorScaling * data.deltaKills))
+                oldItemScore + (settings.equipment.armorScaling * data.deltaKills))
             if betterItemRecord and (oldItemRecord.id ~= betterItemRecord.id) then
                 local betterItemScore = itemutil.armorValue(betterItemRecord)
                 if betterItemScore > oldItemScore then
@@ -143,12 +143,12 @@ local function onUpgradeGear(data)
         end
     end
 
-    if settings.gameplay.weaponScaling > 0 then
+    if settings.equipment.weaponScaling > 0 then
         upgradeWeapon(types.Actor.EQUIPMENT_SLOT.CarriedRight)
         upgradeWeapon(types.Actor.EQUIPMENT_SLOT.Ammunition)
     end
 
-    if settings.gameplay.armorScaling > 0 and data.armorSkill and data.armorSkill ~= "unarmored" then
+    if settings.equipment.armorScaling > 0 and data.armorSkill and data.armorSkill ~= "unarmored" then
         local isBeast = types.NPC.races.records[getRecord(data.actor).race].isBeast
         local slots = {
             types.Actor.EQUIPMENT_SLOT.Cuirass,
