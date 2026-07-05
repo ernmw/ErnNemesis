@@ -27,8 +27,8 @@ levelScaling_description: "Increase enemy level per death. This only modifies th
 spellScaling_name: "Spell Learning"
 spellScaling_description: "Magic-inclined enemies will learn this many additional random spells per death. Doesn't apply to Creatures."
 
-ignoreNPCBlocklist_name: "Ignore NPC Blocklist"
-ignoreNPCBlocklist_description: "Turn off the NPC blocklist. All NPCs will become eligible."
+ignoreNPCBlocklist_name: "Ignore Actor Blocklist"
+ignoreNPCBlocklist_description: "Turn off the blocklist. All actors are eligible."
 
 showCrown_name: "Show Crown"
 showCrown_description: "Display a crown on NPCs that have killed you."

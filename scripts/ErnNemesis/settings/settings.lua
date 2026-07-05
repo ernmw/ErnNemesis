@@ -192,6 +192,12 @@ local function globalInit()
             description = "ignoreNPCBlocklist_description",
             default = false,
             renderer = "checkbox"
+        }, {
+            key = "aggressiveActorsOnly",
+            name = "aggressiveActorsOnly_name",
+            description = "aggressiveActorsOnly_description",
+            default = true,
+            renderer = "checkbox"
         },
         }
     }
