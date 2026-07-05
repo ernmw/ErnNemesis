@@ -156,7 +156,13 @@ local function globalInit()
                     integer = true,
                     min = 0
                 }
-            },
+            }, {
+            key = "showCrown",
+            name = "showCrown_name",
+            description = "showCrown_description",
+            default = true,
+            renderer = "checkbox"
+        },
         }
     }
 end

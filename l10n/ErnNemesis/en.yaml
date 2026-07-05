@@ -25,11 +25,14 @@ levelScaling_name: "Level Scaling"
 levelScaling_description: "Increase enemy level per death. This only modifies the level; not skills or attributes."
 
 weaponScaling_name: "Weapon Scaling"
-weaponScaling_description: "Enemies will get better weapons per kill. This roughly translates to gold value increase per kill. Doesn't apply to Creatures."
+weaponScaling_description: "Enemies will get better weapons per kill. This roughly translates to gold value increase per kill."
 armorScaling_name: "Armor Scaling"
-armorScaling_description: "Enemies will get better armor per kill. This roughly translates to gold value increase per kill. Doesn't apply to Creatures."
+armorScaling_description: "Enemies will get better armor per kill. This roughly translates to gold value increase per kill."
 consumableScaling_name: "Consumable Scaling"
 consumableScaling_description: "Enemies will get additional potions or scrolls per kill (max 3). This roughly translates to gold value increase per kill. Doesn't apply to Creatures."
 
 spellScaling_name: "Spell Learning"
 spellScaling_description: "Magic-inclined enemies will learn this many additional random spells per death. Doesn't apply to Creatures."
+
+showCrown_name: "Show Crown"
+showCrown_description: "Display a crown on NPCs that have killed you."

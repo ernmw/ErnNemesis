@@ -324,9 +324,11 @@ local function onUpgradeGearCompleted(data)
 end
 
 local function applyCrown()
-    if persist.kills > 0 then
-        animation.addVfx(pself, "Meshes\\nemesis_crown.nif",
-            { loop = true, boneName = "bip01 head", vfxId = "nemesis_crown", useAmbientLight = false })
+    if settings.gameplay.showCrown then
+        if animation.hasBone(pself, "bip01 head") then
+            animation.addVfx(pself, "Meshes\\nemesis_crown.nif",
+                { loop = true, boneName = "bip01 head", vfxId = "nemesis_crown", useAmbientLight = true })
+        end
     end
 end
 
@@ -335,7 +337,9 @@ local function onActive()
         return
     end
     if pself.object:isValid() and not types.Actor.isDead(pself.object) then
-        applyCrown()
+        if persist.kills > 0 then
+            applyCrown()
+        end
         core.sendGlobalEvent(MOD_NAME .. "onActive",
             { actor = pself.object, kills = persist.kills })
     end
@@ -345,6 +349,7 @@ local function onKillCountUpdate(data)
     settings.debugPrint(getRecord(pself.object).name ..
         " has killed the player " ..
         tostring(data.kills) .. " total times, up from " .. tostring(persist.kills) .. " times.")
+    applyCrown()
     handleDynStats(persist.kills, data.kills)
     handleAttributes(persist.kills, data.kills)
     handleSkills(persist.kills, data.kills)
