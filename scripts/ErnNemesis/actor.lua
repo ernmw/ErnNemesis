@@ -340,14 +340,15 @@ local function allowed()
         return true
     end
     local selfRecord = getRecord(pself.object)
-    local classID = types.NPC.classes.record(selfRecord.class).id
-    if blockedClasses[classID] then
+    if blockedClasses[selfRecord.class] then
         settings.debugPrint(selfRecord.name ..
-            " has a blocked class: " .. classID)
+            " has a blocked class: " .. selfRecord.class)
         return false
     end
     local blockedActors = require("scripts.ErnNemesis.actors.load")
     if blockedActors[selfRecord.id] then
+        settings.debugPrint(selfRecord.name ..
+            " is blocked")
         return false
     end
     return true

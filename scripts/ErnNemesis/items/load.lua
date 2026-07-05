@@ -32,6 +32,7 @@ sed 's/^/  - /' items.txt | sort -u
 local dict = {}
 
 local function load()
+    local count = 0
     local function hasSuffix(str, suffix)
         if #suffix == 0 then return true end
         return str:sub(- #suffix) == suffix
@@ -41,6 +42,7 @@ local function load()
         local result = markup.loadYaml(fileName)
         for _, v in ipairs(result.items) do
             dict[v] = true
+            count = count + 1
         end
     end
 
@@ -51,7 +53,7 @@ local function load()
         end
     end
 
-    settings.debugPrint("Loaded " .. tostring(#dict.items) .. " items into allowlist.")
+    settings.debugPrint("Loaded " .. tostring(count) .. " items into blocklist.")
 end
 
 load()

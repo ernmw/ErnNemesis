@@ -23,6 +23,7 @@ local settings = require("scripts.ErnNemesis.settings.settings")
 local dict     = {}
 
 local function load()
+    local count = 0
     local function hasSuffix(str, suffix)
         if #suffix == 0 then return true end
         return str:sub(- #suffix) == suffix
@@ -32,6 +33,7 @@ local function load()
         local result = markup.loadYaml(fileName)
         for _, v in ipairs(result.actors) do
             dict[v] = true
+            count = count + 1
         end
     end
 
@@ -42,7 +44,7 @@ local function load()
         end
     end
 
-    settings.debugPrint("Loaded " .. tostring(#dict.items) .. " actors into blocklist.")
+    settings.debugPrint("Loaded " .. tostring(count) .. " actors into blocklist.")
 end
 
 load()
