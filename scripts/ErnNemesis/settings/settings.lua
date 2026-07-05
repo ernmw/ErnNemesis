@@ -92,6 +92,12 @@ local function globalInit()
             key = "ignoreItemAllowlist",
             name = "ignoreItemAllowlist_name",
             description = "ignoreItemAllowlist_description",
+            default = false,
+            renderer = "checkbox"
+        }, {
+            key = "deleteOnDeath",
+            name = "deleteOnDeath_name",
+            description = "deleteOnDeath_description",
             default = true,
             renderer = "checkbox"
         },

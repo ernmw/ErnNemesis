@@ -245,6 +245,16 @@ local function handleSpells(oldKills, newKills)
     learnRandomSpells(math.ceil(settings.gameplay.spellScaling * (newKills - oldKills)))
 end
 
+local function getItemsByIDMap()
+    local itemsByID = {}
+    for _, item in ipairs(pself.type.inventory(pself):getAll()) do
+        if item and item:isValid() then
+            itemsByID[item.id] = item
+        end
+    end
+    return itemsByID
+end
+
 ---@class UpgradeGearData
 ---@field actor table
 ---@field oldGear {[string]:table}
@@ -253,16 +263,10 @@ end
 local function handleGear(oldKills, newKills)
     -- hand this all off to the global script
     if settings.equipment.weaponScaling > 0 or settings.equipment.armorScaling > 0 then
-        local itemsByID = {}
-        for _, item in ipairs(pself.type.inventory(pself):getAll()) do
-            itemsByID[item.id] = item
-        end
+        local itemsByID = getItemsByIDMap()
         local oldGear = {}
         for _, id in ipairs(persist.gearIDs or {}) do
             oldGear[id] = itemsByID[id]
-            if oldGear[id] and not oldGear[id]:isValid() then
-                oldGear[id] = nil
-            end
         end
         ---@type UpgradeGearData
         local data = {
@@ -280,18 +284,12 @@ local function onUpgradeGearCompleted(data)
     settings.debugPrint("onUpgradeGearCompleted for " ..
         getRecord(pself.object).id .. ": " .. aux_util.deepToString(data, 5))
     --- equip / persist new items we got from global
-    local itemsByID = {}
-    for _, item in ipairs(pself.type.inventory(pself):getAll()) do
-        itemsByID[item.id] = item
-    end
+    local itemsByID = getItemsByIDMap()
 
     ---@type {[number]:table}
     local equipped = {}
     for key, val in pairs(persist.originalEquipmentBySlot) do
         equipped[key] = itemsByID[val]
-        if equipped[key] and not equipped[key]:isValid() then
-            equipped[key] = nil
-        end
     end
 
     --- this is called after global has inserted new gear
@@ -367,6 +365,32 @@ local function onKillCountUpdate(data)
     persist.kills = data.kills
 end
 
+local function onDied()
+    if settings.equipment.deleteOnDeath and persist.kills > 0 then
+        settings.debugPrint(getRecord(pself.object).name ..
+            " deleting Nemesis equipment")
+        local itemsByID = getItemsByIDMap()
+        ---@type {[number]:table}
+        local equipped = {}
+        for key, val in pairs(persist.originalEquipmentBySlot) do
+            equipped[key] = itemsByID[val]
+        end
+        pself.type.setEquipment(pself, equipped)
+
+        local itemsToDelete = {}
+        for _, key in ipairs(persist.gearIDs or {}) do
+            itemsToDelete[key] = itemsByID[key]
+        end
+
+        local data = {
+            actor = pself.object,
+            items = itemsToDelete,
+        }
+
+        core.sendGlobalEvent(MOD_NAME .. "onDeleteItems", data)
+    end
+end
+
 local function onLoad(data)
     if data then
         persist = data
@@ -385,5 +409,6 @@ return {
     eventHandlers = {
         [MOD_NAME .. "onKillCountUpdate"] = onKillCountUpdate,
         [MOD_NAME .. "onUpgradeGearCompleted"] = onUpgradeGearCompleted,
+        Died = onDied,
     },
 }

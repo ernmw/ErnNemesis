@@ -171,11 +171,18 @@ local function onUpgradeGear(data)
     async:newSimulationTimer(0.001, sendGearNotification, { actor = data.actor, newData = newData })
 end
 
+local function onDeleteItems(data)
+    for _, item in pairs(data.items) do
+        item:remove()
+    end
+end
+
 return {
     eventHandlers = {
         [MOD_NAME .. "onActive"] = onActive,
         [MOD_NAME .. "onPlayerDied"] = onPlayerDied,
         [MOD_NAME .. "onClearState"] = onClearState,
         [MOD_NAME .. "onUpgradeGear"] = onUpgradeGear,
+        [MOD_NAME .. "onDeleteItems"] = onDeleteItems,
     },
 }
