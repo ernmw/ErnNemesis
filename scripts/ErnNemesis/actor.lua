@@ -24,6 +24,8 @@ local settings  = require("scripts.ErnNemesis.settings.settings")
 local shuffle   = require("scripts.ErnNemesis.shuffle")
 local animation = require('openmw.animation')
 
+local vfxID     = "nemesis_crown"
+
 ---@class Persist
 ---@field kills number Number of persisted kills.
 ---@field gearIDs string[] List of item IDs for items added by Nemesis.
@@ -350,7 +352,7 @@ local function applyCrown()
     if settings.gameplay.showCrown then
         if animation.hasBone(pself, "bip01 head") then
             animation.addVfx(pself, "Meshes\\nemesis_crown.nif",
-                { loop = true, boneName = "bip01 head", vfxId = "nemesis_crown", useAmbientLight = true })
+                { loop = true, boneName = "bip01 head", vfxId = vfxID, useAmbientLight = true })
         end
     end
 end
@@ -441,6 +443,8 @@ local function onDied()
 
         core.sendGlobalEvent(MOD_NAME .. "onDeleteItems", data)
     end
+
+    animation.removeVfx(pself, vfxID)
 end
 
 local function onLoad(data)
