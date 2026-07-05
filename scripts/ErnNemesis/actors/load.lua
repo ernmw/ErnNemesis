@@ -20,16 +20,7 @@ local vfs      = require('openmw.vfs')
 local markup   = require('openmw.markup')
 local settings = require("scripts.ErnNemesis.settings.settings")
 
---[[
-Dump levelled lists notes:
-tes3cmd dump --type levi './Morrowind/Data Files/Morrowind.esm' | grep Item_ID | awk -F: '{print $NF}' | sort -u >> items.txt
-tes3cmd dump --type levi './Morrowind/Data Files/Tribunal.esm' | grep Item_ID | awk -F: '{print $NF}' | sort -u >> items.txt
-tes3cmd dump --type levi './Morrowind/Data Files/Bloodmoon.esm' | grep Item_ID | awk -F: '{print $NF}' | sort -u >> items.txt
-tes3cmd dump --type levi './mods/ModdingResources/TamrielData/00 Data Files/Tamriel_Data.esm' | grep Item_ID | awk -F: '{print $NF}' | sort -u >> items.txt
-sed 's/^/  - /' items.txt | sort -u
-]]
-
-local dict = {}
+local dict     = {}
 
 local function load()
     local function hasSuffix(str, suffix)
@@ -39,19 +30,19 @@ local function load()
 
     local function loadFile(fileName)
         local result = markup.loadYaml(fileName)
-        for _, v in ipairs(result.items) do
+        for _, v in ipairs(result.actors) do
             dict[v] = true
         end
     end
 
 
-    for fileName in vfs.pathsWithPrefix("scripts\\" .. MOD_NAME .. "\\items") do
+    for fileName in vfs.pathsWithPrefix("scripts\\" .. MOD_NAME .. "\\actors") do
         if hasSuffix(fileName:lower(), ".yaml") then
             loadFile(fileName)
         end
     end
 
-    settings.debugPrint("Loaded " .. tostring(#dict.items) .. " items into allowlist.")
+    settings.debugPrint("Loaded " .. tostring(#dict.items) .. " actors into blocklist.")
 end
 
 load()

@@ -330,8 +330,34 @@ local function applyCrown()
     end
 end
 
+local blockedClasses = {
+    guard = true,
+    slave = true
+}
+
+local function allowed()
+    if settings.gameplay.ignoreNPCBlocklist then
+        return true
+    end
+    local selfRecord = getRecord(pself.object)
+    local classID = types.NPC.classes.record(selfRecord.class).id
+    if blockedClasses[classID] then
+        settings.debugPrint(selfRecord.name ..
+            " has a blocked class: " .. classID)
+        return false
+    end
+    local blockedActors = require("scripts.ErnNemesis.actors.load")
+    if blockedActors[selfRecord.id] then
+        return false
+    end
+    return true
+end
+
 local function onActive()
     if settings.admin.disable then
+        return
+    end
+    if not allowed() then
         return
     end
     if pself.object:isValid() and not types.Actor.isDead(pself.object) then

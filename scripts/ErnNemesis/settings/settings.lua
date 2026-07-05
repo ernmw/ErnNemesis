@@ -89,18 +89,18 @@ local function globalInit()
                 min = 0
             }
         }, {
-            key = "ignoreItemAllowlist",
-            name = "ignoreItemAllowlist_name",
-            description = "ignoreItemAllowlist_description",
-            default = false,
-            renderer = "checkbox"
-        }, {
             key = "deleteOnDeath",
             name = "deleteOnDeath_name",
             description = "deleteOnDeath_description",
             default = true,
             renderer = "checkbox"
-        },
+        }, {
+            key = "ignoreItemAllowlist",
+            name = "ignoreItemAllowlist_name",
+            description = "ignoreItemAllowlist_description",
+            default = false,
+            renderer = "checkbox"
+        }
         }
     }
 
@@ -185,6 +185,12 @@ local function globalInit()
             name = "showCrown_name",
             description = "showCrown_description",
             default = true,
+            renderer = "checkbox"
+        }, {
+            key = "ignoreNPCBlocklist",
+            name = "ignoreNPCBlocklist_name",
+            description = "ignoreNPCBlocklist_description",
+            default = false,
             renderer = "checkbox"
         },
         }
