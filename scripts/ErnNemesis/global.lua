@@ -42,7 +42,6 @@ local function isAggressive(actor)
 end
 
 local function onActive(data)
-    --settings.debugPrint("Global onActive: " .. aux_util.deepToString(data, 3))
     local kills = 0
     for _, player in ipairs(world.players) do
         if isAggressive(data.actor) then
@@ -114,6 +113,8 @@ local function onUpgradeGear(data)
     --- 3. get the npc to equip it
     itemutil.build()
 
+    settings.debugPrint("Upgrading gear for " .. getRecord(data.actor).id .. ": " .. aux_util.deepToString(data, 3))
+
     -- delete old items
     for _, item in pairs(data.oldGear) do
         item:remove()
@@ -131,10 +132,12 @@ local function onUpgradeGear(data)
 
     local handleOriginalGearInSlot = function(slot)
         local oldGear = itemsByID[data.originalGear[slot]]
+        local oldGearRecordID = getRecord(oldGear).id
         if settings.equipment.upgradeStrategy == "permanent" and oldGear then
-            if itemutil.allowed(oldGear.record) then
+            if itemutil.allowed(oldGearRecordID) then
                 settings.debugPrint("Deleting original gear from " ..
-                    getRecord(data.actor).id .. ": " .. oldGear.record.id)
+                    getRecord(data.actor).id .. ": " .. oldGearRecordID)
+                oldGear:remove()
             end
         end
     end
