@@ -88,6 +88,12 @@ local function globalInit()
                 integer = true,
                 min = 0
             }
+        }, {
+            key = "ignoreItemAllowlist",
+            name = "ignoreItemAllowlist_name",
+            description = "ignoreItemAllowlist_description",
+            default = true,
+            renderer = "checkbox"
         },
         }
     }

@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 local core         = require("openmw.core")
 local types        = require("openmw.types")
 local allowedItems = require("scripts.ErnNemesis.items.load")
+local settings     = require("scripts.ErnNemesis.settings.settings")
 
 ---Performs a binary search on a list sorted in ascending order by valueFn,
 ---returning the index at which an item with the given score should be inserted.
@@ -150,9 +151,13 @@ local armorBySlotBySkill = {
     heavyarmor = allSlots(),
 }
 
+local function itemAllowed(recordID)
+    return settings.equipment.ignoreItemAllowlist or allowedItems[recordID]
+end
+
 local function buildArmorLists()
     for _, record in ipairs(types.Armor.records) do
-        if allowedItems[record.id] then
+        if itemAllowed(record.id) then
             local skill = getArmorSkill(record)
             if not skill then
                 error("no skill for " .. record.id)
@@ -187,7 +192,7 @@ local weaponsByType = {
 
 local function buildWeaponsLists()
     for _, record in ipairs(types.Weapon.records) do
-        if allowedItems[record.id] then
+        if itemAllowed(record.id) then
             binaryInsert(weaponsByType[record.type], record, weaponValue)
         end
     end
