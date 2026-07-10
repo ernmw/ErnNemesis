@@ -371,18 +371,33 @@ local function allowed()
         return true
     end
     local selfRecord = getRecord(pself.object)
+    local actors = require("scripts.ErnNemesis.actors.load")
+
+    if actors.allow[selfRecord.id:lower()] then
+        settings.debugPrint(selfRecord.name ..
+            " is force-allowed")
+        return true
+    end
+
     if blockedClasses[selfRecord.class] then
         settings.debugPrint(selfRecord.name ..
             " has a blocked class: " .. selfRecord.class)
         return false
     end
-    local blockedActors = require("scripts.ErnNemesis.actors.load")
-    if blockedActors[selfRecord.id] then
+
+    if actors.block[selfRecord.id:lower()] then
         settings.debugPrint(selfRecord.name ..
             " is blocked")
         return false
     end
-    return true
+
+    if types.Actor.stats.ai.fight(pself).base >= 40 then
+        settings.debugPrint(selfRecord.name ..
+            " is aggressive")
+        return true
+    end
+
+    return false
 end
 
 local function onActive()

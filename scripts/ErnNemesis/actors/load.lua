@@ -20,7 +20,8 @@ local vfs      = require('openmw.vfs')
 local markup   = require('openmw.markup')
 local settings = require("scripts.ErnNemesis.settings.settings")
 
-local dict     = {}
+local block    = {}
+local allow     = {}
 
 local function load()
     local count = 0
@@ -31,8 +32,12 @@ local function load()
 
     local function loadFile(fileName)
         local result = markup.loadYaml(fileName)
-        for _, v in ipairs(result.actors) do
-            dict[v] = true
+        for _, v in ipairs(result.block) do
+            block[v:lower()] = true
+            count = count + 1
+        end
+        for _, v in ipairs(result.allow) do
+            allow[v:lower()] = true
             count = count + 1
         end
     end
@@ -44,9 +49,12 @@ local function load()
         end
     end
 
-    settings.debugPrint("Loaded " .. tostring(count) .. " actors into blocklist.")
+    settings.debugPrint("Loaded " .. tostring(count) .. " actors into list.")
 end
 
 load()
 
-return dict
+return {
+    block = block,
+    allow = allow
+}

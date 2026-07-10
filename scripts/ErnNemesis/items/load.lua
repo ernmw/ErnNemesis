@@ -20,16 +20,8 @@ local vfs      = require('openmw.vfs')
 local markup   = require('openmw.markup')
 local settings = require("scripts.ErnNemesis.settings.settings")
 
---[[
-Dump levelled lists notes:
-tes3cmd dump --type levi './Morrowind/Data Files/Morrowind.esm' | grep Item_ID | awk -F: '{print $NF}' | sort -u >> items.txt
-tes3cmd dump --type levi './Morrowind/Data Files/Tribunal.esm' | grep Item_ID | awk -F: '{print $NF}' | sort -u >> items.txt
-tes3cmd dump --type levi './Morrowind/Data Files/Bloodmoon.esm' | grep Item_ID | awk -F: '{print $NF}' | sort -u >> items.txt
-tes3cmd dump --type levi './mods/ModdingResources/TamrielData/00 Data Files/Tamriel_Data.esm' | grep Item_ID | awk -F: '{print $NF}' | sort -u >> items.txt
-sed 's/^/  - /' items.txt | sort -u
-]]
-
-local dict = {}
+local block    = {}
+local allow     = {}
 
 local function load()
     local count = 0
@@ -40,8 +32,12 @@ local function load()
 
     local function loadFile(fileName)
         local result = markup.loadYaml(fileName)
-        for _, v in ipairs(result.items) do
-            dict[v] = true
+        for _, v in ipairs(result.block) do
+            block[v:lower()] = true
+            count = count + 1
+        end
+        for _, v in ipairs(result.allow) do
+            allow[v:lower()] = true
             count = count + 1
         end
     end
@@ -58,4 +54,7 @@ end
 
 load()
 
-return dict
+return {
+    block = block,
+    allow = allow
+}

@@ -35,29 +35,18 @@ end
 
 local nemesisData = storage.globalSection(MOD_NAME .. "NemesisData")
 
-local function isAggressive(actor)
-    if settings.gameplay.ignoreNPCBlocklist then
-        return true
-    end
-    return types.Actor.stats.ai.fight(actor).base >= 40
-end
-
 local function onActive(data)
     local kills = 0
     for _, player in ipairs(world.players) do
-        if isAggressive(data.actor) then
-            local snapshot = nemesisData:asTable()[getRecord(player).name]
-            if not snapshot then
-                snapshot = {}
-            end
-            if not snapshot[data.actor.id] then
-                snapshot[data.actor.id] = 0
-            end
-            if snapshot[data.actor.id] then
-                kills = kills + snapshot[data.actor.id]
-            end
-        else
-            settings.debugPrint("Non-aggresive actor ignored: " .. getRecord(data.actor).name)
+        local snapshot = nemesisData:asTable()[getRecord(player).name]
+        if not snapshot then
+            snapshot = {}
+        end
+        if not snapshot[data.actor.id] then
+            snapshot[data.actor.id] = 0
+        end
+        if snapshot[data.actor.id] then
+            kills = kills + snapshot[data.actor.id]
         end
     end
 

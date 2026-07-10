@@ -1,4 +1,4 @@
-items:
+allow:
   - adamantium_axe
   - adamantium boots
   - adamantium_bracer_left
@@ -6289,3 +6289,9 @@ items:
   - wooden staff of peace
   - wooden staff of shaming
   - wooden staff of war
+block:
+  - keening
+  - sunder
+  - wraithguard
+  - wraithguard_jury_rig
+  - misc_wraithguard_no_equip

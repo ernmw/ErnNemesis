@@ -17,7 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
 local core         = require("openmw.core")
 local types        = require("openmw.types")
-local allowedItems = require("scripts.ErnNemesis.items.load")
+local itemLists = require("scripts.ErnNemesis.items.load")
 local settings     = require("scripts.ErnNemesis.settings.settings")
 
 ---Performs a binary search on a list sorted in ascending order by valueFn,
@@ -152,7 +152,7 @@ local armorBySlotBySkill = {
 }
 
 local function itemAllowed(recordID)
-    return settings.equipment.ignoreItemAllowlist or allowedItems[recordID]
+    return (settings.equipment.ignoreItemAllowlist or itemLists.allow[recordID:lower()]) and (not itemLists.block[recordID:lower()])
 end
 
 local function buildArmorLists()
@@ -224,7 +224,7 @@ local function getArmorWithScore(skill, slot, score)
 end
 
 local function allowed(recordID)
-    return allowedItems[recordID]
+    return (itemLists.allow[recordID:lower()]) and (not itemLists.block[recordID:lower()])
 end
 
 return {
