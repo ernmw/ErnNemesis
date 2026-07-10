@@ -50,11 +50,15 @@ local function onActive(data)
         end
     end
 
-    if kills > data.kills then
+    local daysPerNeglectBonus = 2
+
+    local neglectBonus = math.floor(data.neglectDuration / (60*60*24*2))
+
+    if (kills > data.kills) or (neglectBonus > 0) then
         --- some buffs must be applied in global context
 
         --- Persist kill count on actor
-        data.actor:sendEvent(MOD_NAME .. "onKillCountUpdate", { kills = kills })
+        data.actor:sendEvent(MOD_NAME .. "onKillCountUpdate", { kills = kills, neglectBonus =  neglectBonus})
     end
 end
 
@@ -122,6 +126,10 @@ local function onUpgradeGear(data)
 
     local handleOriginalGearInSlot = function(slot)
         local oldGear = itemsByID[data.originalGear[slot]]
+        if not oldGear then
+            settings.debugPrint("No original gear in slot " .. tostring(slot))
+            return
+        end
         local oldGearRecordID = getRecord(oldGear).id
         if settings.equipment.upgradeStrategy == "permanent" and oldGear then
             if itemutil.allowed(oldGearRecordID) then

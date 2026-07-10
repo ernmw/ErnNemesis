@@ -46,6 +46,7 @@ local defaultCrownPath = "Meshes\\ErnNemesis\\nemesis_crown.nif"
 local crownPath = defaultCrownPath
 
 local persist = {
+    lastKillGameTime = math.huge,
     kills = 0,
     gearIDs = {},
     originalEquipmentBySlot = equipmentSnapshot(),
@@ -415,21 +416,23 @@ local function onActive()
         if persist.kills > 0 then
             applyCrown()
         end
+        local neglectDuration = math.max(0, core.getGameTime()-(persist.lastKillGameTime or math.huge))
         core.sendGlobalEvent(MOD_NAME .. "onActive",
-            { actor = pself.object, kills = persist.kills })
+            { actor = pself.object, kills = persist.kills, neglectDuration = neglectDuration })
     end
 end
 
 local function onKillCountUpdate(data)
     settings.debugPrint(getRecord(pself.object).name ..
         " has killed the player " ..
-        tostring(data.kills) .. " total times, up from " .. tostring(persist.kills) .. " times.")
+        tostring(data.kills) .. " total times, up from " .. tostring(persist.kills) .. " times. Neglect bonus: "..tostring(data.neglectBonus))
     applyCrown()
-    handleDynStats(persist.kills, data.kills)
-    handleAttributes(persist.kills, data.kills)
-    handleSkills(persist.kills, data.kills)
-    handleSpells(persist.kills, data.kills)
-    handleGear(persist.kills, data.kills)
+    local newKills = data.kills + data.neglectBonus
+    handleDynStats(persist.kills, newKills)
+    handleAttributes(persist.kills, newKills)
+    handleSkills(persist.kills, newKills)
+    handleSpells(persist.kills, newKills)
+    handleGear(persist.kills, newKills)
 
     --- apply the nemesis ability when they first become a nemesis
     --- test with:
@@ -443,13 +446,14 @@ local function onKillCountUpdate(data)
 
     if settings.gameplay.levelScaling then
         local levelStat = pself.type.stats.level(pself)
-        levelStat.current = levelStat.current + (data.kills - persist.kills)
+        levelStat.current = levelStat.current + (newKills - persist.kills)
         settings.debugPrint(getRecord(pself.object).name ..
             " leveled up to " ..
             tostring(levelStat.current))
     end
 
     persist.kills = data.kills
+    persist.lastKillGameTime = core.getGameTime()
 end
 
 local function onDied()
