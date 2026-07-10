@@ -256,6 +256,17 @@ local function globalInit()
             default = false,
             renderer = "checkbox"
         },
+        {
+            key = "neglectDayPenalty",
+            name = "neglectDayPenalty_name",
+            description = "neglectDayPenalty_description",
+            default = 0,
+            renderer = "number",
+            argument = {
+                integer = true,
+                min = 0
+            }
+        },
         }
     }
 end

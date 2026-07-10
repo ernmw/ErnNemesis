@@ -33,6 +33,9 @@ ignoreNPCBlocklist_description: "Turn off the blocklist. All actors are eligible
 showCrown_name: "Show Crown"
 showCrown_description: "Display a crown on NPCs that have killed you."
 
+neglectDayPenalty_name: "Neglect Scaling"
+neglectDayPenalty_description: "If you neglect to exact revenge, nemeses will scale up once per this many in-game days. Set to 0 to disable."
+
 modSettingsEquipmentTitle: "Equipment"
 weaponScaling_name: "Weapon Scaling"
 weaponScaling_description: "Enemies will get better weapons per kill. This roughly translates to gold value increase per kill. Set to 0 to disable."

@@ -50,9 +50,10 @@ local function onActive(data)
         end
     end
 
-    local daysPerNeglectBonus = 2
-
-    local neglectBonus = math.floor(data.neglectDuration / (60*60*24*2))
+    local neglectBonus = 0
+    if settings.gameplay.neglectDayPenalty > 0 then
+        neglectBonus = math.floor(data.neglectDuration / (60*60*24*settings.gameplay.neglectDayPenalty))
+    end
 
     if (kills > data.kills) or (neglectBonus > 0) then
         --- some buffs must be applied in global context
