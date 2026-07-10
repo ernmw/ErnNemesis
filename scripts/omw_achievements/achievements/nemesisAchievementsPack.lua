@@ -28,7 +28,7 @@ local globalVarAchievements = {
         variable = const.NEMESIS_KILLED_GVAR,
         value = 6,
         operator = function(self, givenValue)
-            return givenValue >= self.value
+            return givenValue == self.value
         end,
         enableProgress = true,
         icon = "Icons\\ErnNemesis\\revenge.tga",
