@@ -15,7 +15,8 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
-local MOD_NAME = require("scripts.ErnNemesis.ns")
+local MOD_NAME          = require("scripts.ErnNemesis.ns")
+local const = require("scripts.ErnNemesis.const")
 local storage  = require('openmw.storage')
 local world    = require('openmw.world')
 local async    = require('openmw.async')
@@ -215,6 +216,13 @@ local function onDeleteItems(data)
     end
 end
 
+local function onNemesisKilled(data)
+    local gvs = world.mwscript.getGlobalVariables(data.player)
+    gvs[const.NEMESIS_KILLED_GVAR] = gvs[const.NEMESIS_KILLED_GVAR] + 1
+    local playerName = getRecord(data.player).name
+    settings.debugPrint("Nemesis revenge count for " .. playerName .. ": "..tostring(gvs[const.NEMESIS_KILLED_GVAR]))
+end
+
 return {
     eventHandlers = {
         [MOD_NAME .. "onActive"] = onActive,
@@ -222,5 +230,6 @@ return {
         [MOD_NAME .. "onClearState"] = onClearState,
         [MOD_NAME .. "onUpgradeGear"] = onUpgradeGear,
         [MOD_NAME .. "onDeleteItems"] = onDeleteItems,
+        [MOD_NAME .. "onNemesisKilled"] = onNemesisKilled,
     },
 }

@@ -23,6 +23,7 @@ local aux_util  = require('openmw_aux.util')
 local settings  = require("scripts.ErnNemesis.settings.settings")
 local shuffle   = require("scripts.ErnNemesis.shuffle")
 local animation = require('openmw.animation')
+local const = require("scripts.ErnNemesis.const")
 
 local vfxID     = "nemesis_crown"
 
@@ -44,6 +45,7 @@ local persist = {
     kills = 0,
     gearIDs = {},
     originalEquipmentBySlot = equipmentSnapshot(),
+    playersInCombat = {},
 }
 
 local function getRecord(obj)
@@ -417,7 +419,7 @@ local function onKillCountUpdate(data)
     ]] --
     if persist.kills == 0 then
         local actorSpells = types.Actor.spells(pself)
-        actorSpells:add(core.magic.spells.records.ErnNemesis1)
+        actorSpells:add(core.magic.spells.records[const.NEMESIS_SPELL_1])
     end
 
     if settings.gameplay.levelScaling then
@@ -455,8 +457,31 @@ local function onDied()
 
         core.sendGlobalEvent(MOD_NAME .. "onDeleteItems", data)
     end
+    if persist.kills > 0 then
+        settings.debugPrint(getRecord(pself.object).name ..
+            " died.")
+        for _, player in pairs(persist.playersInCombat) do
+        core.sendGlobalEvent(MOD_NAME .. "onNemesisKilled", { actor = pself, kills = persist.kills, player=player})
+        end
+    end
 
     animation.removeVfx(pself, vfxID)
+end
+
+local function onCombatChange(data)
+    if not persist.playersInCombat then
+        persist.playersInCombat = {}
+    end
+    settings.debugPrint(getRecord(pself.object).name ..
+        " combat status changed: ".. aux_util.deepToString(data, 5))
+    for _, player in ipairs(data.added or {}) do
+        local key = getRecord(player).name
+        persist.playersInCombat[key] = player
+    end
+    for _, player in ipairs(data.removed or {}) do
+        local key = getRecord(player).name
+        persist.playersInCombat[key] = nil
+    end
 end
 
 local function onLoad(data)
@@ -477,6 +502,7 @@ return {
     eventHandlers = {
         [MOD_NAME .. "onKillCountUpdate"] = onKillCountUpdate,
         [MOD_NAME .. "onUpgradeGearCompleted"] = onUpgradeGearCompleted,
+        [MOD_NAME .. "onCombatChange"] = onCombatChange,
         Died = onDied,
     },
 }

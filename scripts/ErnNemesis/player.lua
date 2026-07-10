@@ -36,6 +36,9 @@ end
 local combatTracker = {}
 
 local clearCombatant = async:registerTimerCallback('clearCombatant', function(id)
+    combatTracker[id]:sendEvent(MOD_NAME .. "onCombatChange", {
+        removed = {pself.object}
+    })
     combatTracker[id] = nil
 end)
 
@@ -45,6 +48,9 @@ local function OMWMusicCombatTargetsChanged(incomingTargetData)
         async:newSimulationTimer(2, clearCombatant, incomingTargetData.actor.id)
     else
         combatTracker[incomingTargetData.actor.id] = incomingTargetData.actor
+        incomingTargetData.actor:sendEvent(MOD_NAME .. "onCombatChange", {
+            added = {pself.object}
+        })
     end
 end
 

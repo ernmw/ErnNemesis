@@ -15,17 +15,8 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
-local MOD_NAME                     = require("scripts.ErnNemesis.ns")
-local content                      = require('openmw.content')
-local const                     = require("scripts.ErnNemesis.const")
 
-content.spells.records[const.NEMESIS_SPELL_1] = {
-    name = 'Nemesis',
-    type = content.spells.TYPE.Ability,
-    cost = 0,
-    starterSpellFlag = false,
-    isAutocalc = false,
-    effects = { { id = 'Feather', magnitudeMin = 75, magnitudeMax = 75 } }
+return {
+    NEMESIS_SPELL_1 = "ErnNemesis1",
+    NEMESIS_KILLED_GVAR = "x32_ErnNemesisKilled"
 }
-
-content.globals.records[const.NEMESIS_KILLED_GVAR] = 0

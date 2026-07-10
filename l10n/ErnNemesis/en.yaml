@@ -47,3 +47,7 @@ upgradeStrategy_name: "Upgrade Strategy"
 upgradeStrategy_description: "Upgraded equipment can be ephemeral (deleted on death) or it can be permanent. If permanent, original equipment will be deleted if that equipment appears in the allow list."
 ephemeral: "Ephemeral"
 permanent: "Permanent"
+
+
+revengeAchievementName: "Roaring Rampage of Revenge"
+revengeAchievementDescription: "Kill six Nemeses."

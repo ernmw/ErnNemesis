@@ -16,3 +16,5 @@ content=ErnNemesis.omwscripts
 ## Credits
 
 Crown model from [cgtrader.com](https://www.cgtrader.com/free-3d-models/character/clothing/crown-of-a-king-3d), used under the Royalty Free License (no AI).
+
+Sword icon from [parkjisun](https://thenounproject.com/icon/samurai-sword-440126/), a royalty-free icon.
