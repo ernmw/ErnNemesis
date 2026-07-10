@@ -23,7 +23,8 @@ local aux_util  = require('openmw_aux.util')
 local settings  = require("scripts.ErnNemesis.settings.settings")
 local shuffle   = require("scripts.ErnNemesis.shuffle")
 local animation = require('openmw.animation')
-local const = require("scripts.ErnNemesis.const")
+local const     = require("scripts.ErnNemesis.const")
+local vfs = require('openmw.vfs')
 
 local vfxID     = "nemesis_crown"
 
@@ -40,6 +41,8 @@ local function equipmentSnapshot()
     end
     return out
 end
+
+local crownPath = "Meshes\\ErnNemesis\\nemesis_crown.nif"
 
 local persist = {
     kills = 0,
@@ -355,7 +358,7 @@ end
 local function applyCrown()
     if settings.gameplay.showCrown then
         if animation.hasBone(pself, "bip01 head") then
-            animation.addVfx(pself, "Meshes\\nemesis_crown.nif",
+            animation.addVfx(pself, crownPath,
                 { loop = true, boneName = "bip01 head", vfxId = vfxID, useAmbientLight = true })
         end
     end
@@ -508,7 +511,25 @@ local function onSave()
     return persist
 end
 
+local function setCrownMeshPath(path)
+    if vfs.fileExists(path) then
+        crownPath = path
+    else
+        settings.debugPrint("setCrownMeshPath: can't find "..tostring(path))
+    end
+end
+
+local function getNemesisLevel()
+    return persist.kills
+end
+
 return {
+    interfaceName = MOD_NAME,
+    interface = {
+        version = 1,
+        setCrownMeshPath = setCrownMeshPath,
+        getNemesisLevel = getNemesisLevel,
+    },
     engineHandlers = {
         onActive = onActive,
         onLoad = onLoad,
