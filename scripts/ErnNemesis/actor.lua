@@ -42,7 +42,8 @@ local function equipmentSnapshot()
     return out
 end
 
-local crownPath = "Meshes\\ErnNemesis\\nemesis_crown.nif"
+local defaultCrownPath = "Meshes\\ErnNemesis\\nemesis_crown.nif"
+local crownPath = defaultCrownPath
 
 local persist = {
     kills = 0,
@@ -512,10 +513,15 @@ local function onSave()
 end
 
 local function setCrownMeshPath(path)
-    if vfs.fileExists(path) then
-        crownPath = path
+    if path then
+        if vfs.fileExists(path) then
+            crownPath = path
+        else
+            crownPath = defaultCrownPath
+            settings.debugPrint("setCrownMeshPath: can't find " .. tostring(path))
+        end
     else
-        settings.debugPrint("setCrownMeshPath: can't find "..tostring(path))
+        crownPath = defaultCrownPath
     end
 end
 
