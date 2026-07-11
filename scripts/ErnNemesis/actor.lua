@@ -509,6 +509,9 @@ local function onCombatChange(data)
     for _, player in ipairs(data.added or {}) do
         local key = getRecord(player).name
         persist.playersInCombat[key] = player
+        if persist.kills > 0 then
+            applyCrown()
+        end
     end
     for _, player in ipairs(data.removed or {}) do
         local key = getRecord(player).name

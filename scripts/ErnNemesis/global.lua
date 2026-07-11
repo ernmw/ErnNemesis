@@ -72,6 +72,11 @@ local function onActive(data)
         neglectBonus = math.floor((core.getGameTime() - lastKillTime) / denominator)
     end
 
+    data.restoredLastKillTime = lastKillTime
+    data.restoredKills = kills
+    settings.debugPrint("onActive for " ..
+        getRecord(data.actor).id .. ": " .. aux_util.deepToString(data, 5))
+
     if (kills > data.kills) or (neglectBonus > 0) then
         --- Persist kill count on actor
         data.actor:sendEvent(MOD_NAME .. "onKillCountUpdate", { kills = kills, neglectBonus =  neglectBonus})

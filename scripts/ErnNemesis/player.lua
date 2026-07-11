@@ -36,10 +36,12 @@ end
 local combatTracker = {}
 
 local clearCombatant = async:registerTimerCallback('clearCombatant', function(id)
+    if combatTracker[id] then
     combatTracker[id]:sendEvent(MOD_NAME .. "onCombatChange", {
         removed = {pself.object}
     })
     combatTracker[id] = nil
+    end
 end)
 
 local function OMWMusicCombatTargetsChanged(incomingTargetData)
