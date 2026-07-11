@@ -54,3 +54,13 @@ permanent: "Permanent"
 
 revengeAchievementName: "Roaring Rampage of Revenge"
 revengeAchievementDescription: "Kill six Nemeses."
+
+quality1: "Tempered {name}"
+quality2: "Refined {name}"
+quality3: "Superior {name}"
+quality4: "Masterwork {name}"
+quality5: "Exquisite {name}"
+quality6: "Grand {name}"
+quality7: "Peerless {name}"
+quality8: "Legendary {name}"
+quality9: "Ascendant {name}"

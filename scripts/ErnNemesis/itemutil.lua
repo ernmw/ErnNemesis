@@ -16,7 +16,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
 local core         = require("openmw.core")
-local types        = require("openmw.types")
+local types     = require("openmw.types")
 local itemLists = require("scripts.ErnNemesis.items.load")
 local settings     = require("scripts.ErnNemesis.settings.settings")
 

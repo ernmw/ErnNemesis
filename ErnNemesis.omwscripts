@@ -4,5 +4,6 @@ GLOBAL: scripts/ErnNemesis/settings/global_settings.lua
 LOAD: scripts/ErnNemesis/content.lua
 
 PLAYER: scripts/ErnNemesis/player.lua
+GLOBAL: scripts/ErnNemesis/upgrade.lua
 GLOBAL: scripts/ErnNemesis/global.lua
 NPC,CREATURE: scripts/ErnNemesis/actor.lua
