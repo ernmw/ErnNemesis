@@ -35,7 +35,6 @@ end
 ---@field kills number
 
 local nemesisKillCountData = storage.globalSection(MOD_NAME .. "NemesisData")
--- TODO: there is some bug with time data.
 local nemesisTimeData = storage.globalSection(MOD_NAME .. "NemesisTimeData")
 
 local function onActive(data)
@@ -66,12 +65,14 @@ local function onActive(data)
         end
     end
 
-    if (kills > data.kills) or (latestTime > data.lastKillGameTime) then
-        local neglectBonus = 0
-        if settings.gameplay.neglectDayPenalty > 0 then
-            local denominator = (60 * 60 * 24 * settings.gameplay.neglectDayPenalty)
-            neglectBonus = math.floor(core.getGameTime()-math.max(latestTime, data.lastKillGameTime) / denominator)
-        end
+    local lastKillTime = math.max(latestTime, data.lastKillGameTime)
+    local neglectBonus = 0
+    if lastKillTime > 0 and settings.gameplay.neglectDayPenalty > 0 then
+        local denominator = (60 * 60 * 24 * settings.gameplay.neglectDayPenalty)
+        neglectBonus = math.floor((core.getGameTime() - lastKillTime) / denominator)
+    end
+
+    if (kills > data.kills) or (neglectBonus > 0) then
         --- Persist kill count on actor
         data.actor:sendEvent(MOD_NAME .. "onKillCountUpdate", { kills = kills, neglectBonus =  neglectBonus})
     end
@@ -88,6 +89,13 @@ local function onPlayerDied(data)
     end
     settings.debugPrint("New nemesis data: " .. aux_util.deepToString(snapshot, 3))
     nemesisKillCountData:set(key, snapshot)
+
+    local snapshotTime = nemesisTimeData:asTable()[key] or {}
+    local now = core.getGameTime()
+    for _, opponent in ipairs(data.opponents) do
+        snapshotTime[opponent] = now
+    end
+    nemesisTimeData:set(key, snapshotTime)
 end
 
 local function onClearState()
