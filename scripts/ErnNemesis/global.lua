@@ -21,6 +21,7 @@ local storage  = require('openmw.storage')
 local world    = require('openmw.world')
 local async    = require('openmw.async')
 local types    = require('openmw.types')
+local core    = require('openmw.core')
 local aux_util = require('openmw_aux.util')
 local settings = require("scripts.ErnNemesis.settings.settings")
 local itemutil = require("scripts.ErnNemesis.itemutil")
@@ -33,12 +34,16 @@ end
 ---@field actorID string
 ---@field kills number
 
-local nemesisData = storage.globalSection(MOD_NAME .. "NemesisData")
+local nemesisKillCountData = storage.globalSection(MOD_NAME .. "NemesisData")
+-- TODO: there is some bug with time data.
+local nemesisTimeData = storage.globalSection(MOD_NAME .. "NemesisTimeData")
 
 local function onActive(data)
     local kills = 0
+    local latestTime = 0
     for _, player in ipairs(world.players) do
-        local snapshot = nemesisData:asTable()[getRecord(player).name]
+        -- update kill count
+        local snapshot = nemesisKillCountData:asTable()[getRecord(player).name]
         if not snapshot then
             snapshot = {}
         end
@@ -48,16 +53,25 @@ local function onActive(data)
         if snapshot[data.actor.id] then
             kills = kills + snapshot[data.actor.id]
         end
+        -- update time count
+        local snapshotTime = nemesisTimeData:asTable()[getRecord(player).name]
+        if not snapshotTime then
+            snapshotTime = {}
+        end
+        if not snapshotTime[data.actor.id] then
+            snapshotTime[data.actor.id] = 0
+        end
+        if snapshotTime[data.actor.id] then
+            latestTime = math.max(latestTime, snapshotTime[data.actor.id])
+        end
     end
 
-    local neglectBonus = 0
-    if settings.gameplay.neglectDayPenalty > 0 then
-        neglectBonus = math.floor(data.neglectDuration / (60*60*24*settings.gameplay.neglectDayPenalty))
-    end
-
-    if (kills > data.kills) or (neglectBonus > 0) then
-        --- some buffs must be applied in global context
-
+    if (kills > data.kills) or (latestTime > data.lastKillGameTime) then
+        local neglectBonus = 0
+        if settings.gameplay.neglectDayPenalty > 0 then
+            local denominator = (60 * 60 * 24 * settings.gameplay.neglectDayPenalty)
+            neglectBonus = math.floor(core.getGameTime()-math.max(latestTime, data.lastKillGameTime) / denominator)
+        end
         --- Persist kill count on actor
         data.actor:sendEvent(MOD_NAME .. "onKillCountUpdate", { kills = kills, neglectBonus =  neglectBonus})
     end
@@ -66,19 +80,19 @@ end
 local function onPlayerDied(data)
     settings.debugPrint("Global onPlayerDied: " .. aux_util.deepToString(data, 3))
     local key = getRecord(data.player).name
-    local snapshot = nemesisData:asTable()[key] or {}
+    local snapshot = nemesisKillCountData:asTable()[key] or {}
     settings.debugPrint("Old nemesis data: " .. aux_util.deepToString(snapshot, 3))
     for _, opponent in ipairs(data.opponents) do
         local originalCount = snapshot[opponent] or 0
         snapshot[opponent] = originalCount + 1
     end
     settings.debugPrint("New nemesis data: " .. aux_util.deepToString(snapshot, 3))
-    nemesisData:set(key, snapshot)
+    nemesisKillCountData:set(key, snapshot)
 end
 
 local function onClearState()
     settings.debugPrint("Global onClearState.")
-    nemesisData:reset()
+    nemesisKillCountData:reset()
 end
 
 

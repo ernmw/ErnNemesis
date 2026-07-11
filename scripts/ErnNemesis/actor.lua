@@ -416,9 +416,9 @@ local function onActive()
         if persist.kills > 0 then
             applyCrown()
         end
-        local neglectDuration = math.max(0, core.getGameTime()-(persist.lastKillGameTime or math.huge))
+        --local neglectDuration = math.max(0, core.getGameTime()-(persist.lastKillGameTime or math.huge))
         core.sendGlobalEvent(MOD_NAME .. "onActive",
-            { actor = pself.object, kills = persist.kills, neglectDuration = neglectDuration })
+            { actor = pself.object, kills = persist.kills, lastKillGameTime=persist.lastKillGameTime or 0})
     end
 end
 
