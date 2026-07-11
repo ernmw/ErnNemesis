@@ -66,6 +66,12 @@ local function onActive(data)
     end
 
     local lastKillTime = math.max(latestTime, data.lastKillGameTime)
+    --- if lastKillTime is in the future, it means an old save was loaded.
+    --- in that case, we take the persisted lastKillGameTime to try to minimize
+    --- that cheese.
+    if lastKillTime > core.getGameTime() then
+        lastKillTime = data.lastKillGameTime
+    end
     local neglectBonus = 0
     if lastKillTime > 0 and settings.gameplay.neglectDayPenalty > 0 then
         local denominator = (60 * 60 * 24 * settings.gameplay.neglectDayPenalty)
