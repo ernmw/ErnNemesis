@@ -18,10 +18,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 local core         = require("openmw.core")
 local types     = require("openmw.types")
 local storage        = require("openmw.storage")
-local itemLists = require("scripts.ErnNemesis.items.load")
+local itemLists    = require("scripts.ErnNemesis.items.load")
+local shuffle = require("scripts.ErnNemesis.shuffle")
 local settings     = require("scripts.ErnNemesis.settings.settings")
 local MOD_NAME  = require("scripts.ErnNemesis.ns")
 local localization       = core.l10n(MOD_NAME)
+
+local MAX_QUALITY = 9
 
 --- This tracks records for "improved" items, which are dynamically generated records
 --- that clone items in the allowlist and tweak them to be stronger.
@@ -53,8 +56,15 @@ local localization       = core.l10n(MOD_NAME)
 --- This is saved onLoad because it must follow the savegame.
 --- Dynamically generated records are not valid across differenct characters,
 --- and may not be valid across different saves of the same character.
----@type {[string]: string | {[number]: string}}
-local persist = {}
+---@class Persisted
+---@field upgradeMap {[string]: string | {[number]: string}}
+---@field improvementMap {[string]: number}
+
+---@type Persisted
+local persist      = {
+    upgradeMap = {},
+    improvementMap = {}
+}
 
 
 ---@alias UpgradeTable {[number]: string}
@@ -63,7 +73,7 @@ local persist = {}
 ---@return UpgradeTable?
 local function getUpgradeTable(itemRecordID)
     --- get the value. if it's a string, do another lookup.
-    local lookup = persist[itemRecordID]
+    local lookup = persist.upgradeMap[itemRecordID]
     if not lookup then
         return
     end
@@ -77,9 +87,9 @@ end
 ---@param itemRecordID string
 ---@param newTable UpgradeTable
 local function setUpgradeTable(itemRecordID, newTable)
-    local lookup = persist[itemRecordID]
+    local lookup = persist.upgradeMap[itemRecordID]
     if not lookup then
-        persist[lookup] = newTable
+        persist.upgradeMap[lookup] = newTable
         return
     end
     if type(lookup) == "string" then
@@ -90,9 +100,42 @@ local function setUpgradeTable(itemRecordID, newTable)
             error("invalid lookup table for " .. tostring(itemRecordID))
         end
     end
-    persist[lookup] = newTable
+    persist.upgradeMap[lookup] = newTable
 end
 
+---@enum WeaponImprovements
+local WEAPON_IMPROVEMENTS = {
+    health = 1,
+    enchantCapacity = 2,
+    weight = 3,
+    speed = 5,
+    maxDamage = 6,
+}
+
+---@enum ArmorImprovements
+local ARMOR_IMPROVEMENTS = {
+    health = 1,
+    enchantCapacity = 2,
+    weight = 3,
+    speed = 4,
+}
+
+
+---Return a random list of improvements, with an even-ish distribution.
+---TODO: This isn't stable for a given baseItemRecordID; it must be preserved. use persist table as cache
+---@param baseItemRecordID string
+---@return WeaponImprovements[]
+local function weaponImprovementsByLevel(baseItemRecordID)
+    local rand = shuffle(ARMOR_IMPROVEMENTS)
+    while #rand < MAX_QUALITY do
+        for _, v in ipairs(shuffle(ARMOR_IMPROVEMENTS)) do
+            if #rand < MAX_QUALITY then
+                rand[#rand +1] = v
+            end
+        end
+    end
+    return rand
+end
 
 ---Returns the new name of an item with an adjective.
 ---@param baseItemRecord table
@@ -101,8 +144,8 @@ local function getNewName(baseItemRecord, quality)
     if quality < 1 then
         return baseItemRecord.name
     end
-    if quality > 9 then
-        quality = 9
+    if quality > MAX_QUALITY then
+        quality = MAX_QUALITY
     end
 
     localization("quality"..tostring(quality), {baseItemRecord.name})
