@@ -432,10 +432,7 @@ local function onKillCountUpdate(data)
     -- previousEffective includes any neglect bonus already folded into stats/level,
     -- so re-syncing (e.g. on cell reload) doesn't reapply the same bonus again.
     local previousEffective = persist.kills + persist.appliedNeglectBonus
-    -- A real kill resets the neglect clock (data.neglectBonus drops back near 0), so
-    -- data.kills + data.neglectBonus alone could dip below what's already been applied.
-    -- Never let the effective total go backwards.
-    local newKills = math.max(previousEffective, data.kills + data.neglectBonus)
+    local newKills = data.kills + data.neglectBonus
     handleDynStats(previousEffective, newKills)
     handleAttributes(previousEffective, newKills)
     handleSkills(previousEffective, newKills)
@@ -461,7 +458,7 @@ local function onKillCountUpdate(data)
     end
 
     persist.kills = data.kills
-    persist.appliedNeglectBonus = newKills - data.kills
+    persist.appliedNeglectBonus = data.neglectBonus
     -- only the actor actually killing the player should move this timestamp forward
     if wasRealKill then
         persist.lastKillGameTime = core.getGameTime()
