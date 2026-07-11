@@ -46,8 +46,9 @@ local defaultCrownPath = "Meshes\\ErnNemesis\\nemesis_crown.nif"
 local crownPath = defaultCrownPath
 
 local persist = {
-    lastKillGameTime = math.huge,
+    lastKillGameTime = 0,
     kills = 0,
+    appliedNeglectBonus = 0,
     gearIDs = {},
     originalEquipmentBySlot = equipmentSnapshot(),
     playersInCombat = {},
@@ -427,33 +428,44 @@ local function onKillCountUpdate(data)
         " has killed the player " ..
         tostring(data.kills) .. " total times, up from " .. tostring(persist.kills) .. " times. Neglect bonus: "..tostring(data.neglectBonus))
     applyCrown()
-    local newKills = data.kills + data.neglectBonus
-    handleDynStats(persist.kills, newKills)
-    handleAttributes(persist.kills, newKills)
-    handleSkills(persist.kills, newKills)
-    handleSpells(persist.kills, newKills)
-    handleGear(persist.kills, newKills)
+    local wasRealKill = data.kills > persist.kills
+    -- previousEffective includes any neglect bonus already folded into stats/level,
+    -- so re-syncing (e.g. on cell reload) doesn't reapply the same bonus again.
+    local previousEffective = persist.kills + persist.appliedNeglectBonus
+    -- A real kill resets the neglect clock (data.neglectBonus drops back near 0), so
+    -- data.kills + data.neglectBonus alone could dip below what's already been applied.
+    -- Never let the effective total go backwards.
+    local newKills = math.max(previousEffective, data.kills + data.neglectBonus)
+    handleDynStats(previousEffective, newKills)
+    handleAttributes(previousEffective, newKills)
+    handleSkills(previousEffective, newKills)
+    handleSpells(previousEffective, newKills)
+    handleGear(previousEffective, newKills)
 
     --- apply the nemesis ability when they first become a nemesis
     --- test with:
     --[[
     for _, effect in pairs(types.Actor.activeEffects(self)) do print(effect.name or effect.id, "Mag:", effect.magnitude, "Dur:", effect.durationLeft) end
     ]] --
-    if persist.kills == 0 then
+    if persist.kills == 0 and data.kills > 0 then
         local actorSpells = types.Actor.spells(pself)
         actorSpells:add(core.magic.spells.records[const.NEMESIS_SPELL_1])
     end
 
     if settings.gameplay.levelScaling then
         local levelStat = pself.type.stats.level(pself)
-        levelStat.current = levelStat.current + (newKills - persist.kills)
+        levelStat.current = levelStat.current + (newKills - previousEffective)
         settings.debugPrint(getRecord(pself.object).name ..
             " leveled up to " ..
             tostring(levelStat.current))
     end
 
     persist.kills = data.kills
-    persist.lastKillGameTime = core.getGameTime()
+    persist.appliedNeglectBonus = newKills - data.kills
+    -- only the actor actually killing the player should move this timestamp forward
+    if wasRealKill then
+        persist.lastKillGameTime = core.getGameTime()
+    end
 end
 
 local function onDied()
@@ -510,6 +522,8 @@ end
 local function onLoad(data)
     if data then
         persist = data
+        persist.appliedNeglectBonus = persist.appliedNeglectBonus or 0
+        persist.lastKillGameTime = persist.lastKillGameTime or 0
     end
 end
 local function onSave()
