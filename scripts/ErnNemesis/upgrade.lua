@@ -239,11 +239,31 @@ local weaponImprovementOperators = {
     end,
 }
 
+---Returns true if the given record is an Armor record (as opposed to a Weapon record).
+---@param record table a weapon or armor record
+---@return boolean
+local function isArmorRecord(record)
+    return types.Armor.records[record.id] ~= nil
+end
+
+---Returns the type module (types.Armor or types.Weapon) that a record belongs to.
+---Needed because createRecordDraft() is a static function on the type module
+---(e.g. types.Armor.createRecordDraft(record)), not a method on the record itself.
+---@param record table a weapon or armor record
+---@return table
+local function getRecordTypeModule(record)
+    if isArmorRecord(record) then
+        return types.Armor
+    else
+        return types.Weapon
+    end
+end
+
 ---this is pretty gross ngl
 ---@param baseItemRecord table
 ---@return (fun(table): table)[]
 local function improvementModifiers(baseItemRecord)
-    local isArmor = types.Armor.records[baseItemRecord.id] ~= nil
+    local isArmor = isArmorRecord(baseItemRecord)
     local out = {}
     local fn
     local map
@@ -311,8 +331,9 @@ local function getUpgradedRecordID(itemRecord, level)
             [0]=itemRecord.id
         }
         local lastRecord = itemRecord
+        local recordTypeModule = getRecordTypeModule(itemRecord)
         for lvl, imp in ipairs(improvementModifiers(itemRecord)) do
-            local draft = itemRecord.type.createRecordDraft(lastRecord)
+            local draft = recordTypeModule.createRecordDraft(lastRecord)
             draft = imp(draft)
             draft.name = getNewName(itemRecord, lvl)
             draft.value = itemRecord.value + lvl*10
