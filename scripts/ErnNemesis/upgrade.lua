@@ -281,7 +281,7 @@ end
 ---@param itemRecord table a weapon or armor record
 ---@param level number? either a number from 0 to 9, or nil. if nil, will return the next upgrade for the item.
 ---@return string?
-local function getUpgradedRecord(itemRecord, level)
+local function getUpgradedRecordID(itemRecord, level)
     local upgradeTable = getUpgradeTable(itemRecord.id)
     if not upgradeTable then
         -- build new upgrade table
@@ -337,7 +337,7 @@ return {
     interface = {
         version = 1,
         getUpgradeTable = getUpgradeTable,
-        getUpgradedRecord = getUpgradedRecord,
+        getUpgradedRecordID = getUpgradedRecordID,
     },
     engineHandlers = {
         onLoad = onLoad,

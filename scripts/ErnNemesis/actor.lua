@@ -296,8 +296,17 @@ end
 ---@field originalGear {[number]:string}
 
 local function handleGear(oldKills, newKills)
-    -- hand this all off to the global script
-    if settings.equipment.weaponScaling > 0 or settings.equipment.armorScaling > 0 then
+    --- exit the function if item updates are disabled
+    if settings.equipment.itemUpgradeType == const.UPGRADE_DISABLED then
+        return
+    end
+    if settings.equipment.itemUpgradeType == const.UPGRADE_ALLOWLIST and settings.equipment.weaponScaling == 0 and settings.equipment.armorScaling == 0 then
+        return
+    end
+    if settings.equipment.itemUpgradeType == const.UPGRADE_ALL and settings.equipment.weaponScaling == 0 and settings.equipment.armorScaling == 0 then
+        return
+    end
+
         local itemsByID = getItemsByIDMap()
         local oldGear = {}
         for _, id in ipairs(persist.gearIDs or {}) do
@@ -313,7 +322,7 @@ local function handleGear(oldKills, newKills)
         }
 
         core.sendGlobalEvent(MOD_NAME .. "onUpgradeGear", data)
-    end
+
 end
 
 ---@param data UpgradeGearCompletedData

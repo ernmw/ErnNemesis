@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 local interfaces = require("openmw.interfaces")
 local storage    = require("openmw.storage")
 local MOD_NAME   = require("scripts.ErnNemesis.ns")
+local const   = require("scripts.ErnNemesis.const")
 local async      = require("openmw.async")
 
 local function groupKey(groupName)
@@ -27,6 +28,8 @@ end
 local adminGroupKey     = groupKey("Admin")
 local gameplayGroupKey  = groupKey("Gameplay")
 local equipmentGroupKey = groupKey("Equipment")
+
+local itemUpgradeChoices = {const.UPGRADE_DISABLED, const.UPGRADE_IMPROVE, const.UPGRADE_ALLOWLIST, const.UPGRADE_ALL}
 
 local lookupFuncTable   = {
     __index = function(table, key)
@@ -130,7 +133,24 @@ local function globalInit()
         page = MOD_NAME,
         permanentStorage = true,
         order = 14,
-        settings = { {
+        settings = {
+            {
+                key = "itemUpgradeType",
+                name = "itemUpgradeType_name",
+                description = "itemUpgradeType_description",
+                argument = { items = itemUpgradeChoices, l10n = MOD_NAME },
+                default = itemUpgradeChoices[1],
+                renderer = "select",
+            },
+            {
+                key = "upgradeStrategy",
+                name = "upgradeStrategy_name",
+                description = "upgradeStrategy_description",
+                argument = { items = strategies, l10n = MOD_NAME },
+                default = strategies[1],
+                renderer = "select",
+            },
+            {
             key = "weaponScaling",
             name = "weaponScaling_name",
             description = "weaponScaling_description",
@@ -150,19 +170,6 @@ local function globalInit()
                 integer = true,
                 min = 0
             }
-        }, {
-            key = "ignoreItemAllowlist",
-            name = "ignoreItemAllowlist_name",
-            description = "ignoreItemAllowlist_description",
-            default = false,
-            renderer = "checkbox"
-        }, {
-            key = "upgradeStrategy",
-            name = "upgradeStrategy_name",
-            description = "upgradeStrategy_description",
-            argument = { items = strategies, l10n = MOD_NAME },
-            default = strategies[1],
-            renderer = "select",
         }
         }
     }
@@ -269,6 +276,21 @@ local function globalInit()
         },
         }
     }
+
+    local function updateEquipmentDisables()
+        if equipmentContainer.itemUpgradeType == const.UPGRADE_DISABLED then
+            interfaces.Settings.updateRendererArgument(equipmentGroupKey, 'weaponScaling', { disabled = true })
+            interfaces.Settings.updateRendererArgument(equipmentGroupKey, 'armorScaling', { disabled = true })
+        elseif equipmentContainer.itemUpgradeType == const.UPGRADE_IMPROVE then
+            interfaces.Settings.updateRendererArgument(equipmentGroupKey, 'weaponScaling', { disabled = true })
+            interfaces.Settings.updateRendererArgument(equipmentGroupKey, 'armorScaling', { disabled = true })
+        else
+            interfaces.Settings.updateRendererArgument(equipmentGroupKey, 'weaponScaling', { disabled = false })
+            interfaces.Settings.updateRendererArgument(equipmentGroupKey, 'armorScaling', { disabled = false })
+        end
+    end
+    updateEquipmentDisables()
+    equipmentContainer.subscribe(async:callback(updateEquipmentDisables))
 end
 
 ---@alias SettingContainer table

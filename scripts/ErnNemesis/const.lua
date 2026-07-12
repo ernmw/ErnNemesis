@@ -20,5 +20,13 @@ return {
     NEMESIS_SPELL_1 = "ErnNemesis1",
     NEMESIS_KILLED_GVAR = "x32_ErnNemesisKilled",
     MAX_NEGLECT_BONUS = 5,
-    MAX_QUALITY = 9
+    MAX_QUALITY = 9,
+    --- don't upgrade items at all.
+    UPGRADE_DISABLED = "disabled",
+    --- replace items with better items in the allowlist.
+    UPGRADE_ALLOWLIST = "allowList",
+    --- replace items with any better items, including unique ones.
+    UPGRADE_ALL = "all",
+    --- replace items with improved versions of themselves instead of wholly-different items.
+    UPGRADE_IMPROVE = "improve",
 }
