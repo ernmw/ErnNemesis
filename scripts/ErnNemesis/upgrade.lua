@@ -17,6 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
 local core         = require("openmw.core")
 local types     = require("openmw.types")
+local world        = require("openmw.world")
 local storage        = require("openmw.storage")
 local itemLists    = require("scripts.ErnNemesis.items.load")
 local shuffle = require("scripts.ErnNemesis.shuffle")
@@ -121,7 +122,7 @@ end
 local function setUpgradeTable(itemRecordID, newTable)
     local lookup = persist.upgradeMap[itemRecordID]
     if not lookup then
-        persist.upgradeMap[lookup] = newTable
+        persist.upgradeMap[itemRecordID] = newTable
         return
     end
     if type(lookup) == "string" then
@@ -216,7 +217,7 @@ local armorImprovementOperators = {
         return record
     end,
     [ARMOR_IMPROVEMENTS.baseArmor] = function(record)
-        record.baseArmor = math.max(record.baseArmor + 1, record.health*1.05)
+        record.baseArmor = math.max(record.baseArmor + 1, record.baseArmor*1.05)
         return record
     end,
 }
@@ -256,7 +257,7 @@ local function improvementModifiers(baseItemRecord)
         fn = weaponImprovementsByLevel
         map = weaponImprovementOperators
     end
-    for k, v in fn(baseItemRecord.id) do
+    for k, v in ipairs(fn(baseItemRecord.id)) do
         out[k] = map[v]
     end
 	return out
@@ -289,22 +290,24 @@ local function getUpgradedRecord(itemRecord, level)
         }
         local lastRecord = itemRecord
         for lvl, imp in ipairs(improvementModifiers(itemRecord)) do
-            local draft = imp(lastRecord)
+            local draft = itemRecord.type.createRecordDraft(lastRecord)
+            draft = imp(draft)
             draft.name = getNewName(itemRecord, lvl)
             draft.value = itemRecord.value + lvl*10
-            lastRecord = itemRecord.type.createRecordDraft(draft)
-            if not lastRecord then
+
+            local newRecord = world.createRecord(draft)
+            if not newRecord then
                 error("failed to upgrade " .. tostring(itemRecord.id) ..
                     " to level " .. tostring(lvl))
-                return
             end
-            upgradeTable[lvl] = lastRecord
+            lastRecord = newRecord
+            upgradeTable[lvl] = lastRecord.id
         end
         setUpgradeTable(itemRecord.id, upgradeTable)
     end
     -- get absolute level
     if level then
-        if level < 0 or level >= const.MAX_QUALITY then
+        if level < 0 or level > const.MAX_QUALITY then
             error("invalid level: "..tostring(level))
         end
         return upgradeTable[level]
