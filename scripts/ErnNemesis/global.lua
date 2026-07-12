@@ -126,14 +126,37 @@ end)
 ---@field newItemsBySlot {[number]: table}
 ---@field newConsumableIDs string[]
 
-local function getItemsByIDMap(actor)
+local function getItemsByIDMap(inventory)
     local itemsByID = {}
-    for _, item in ipairs(actor.type.inventory(actor):getAll()) do
+    for _, item in ipairs(inventory:getAll()) do
         if item and item:isValid() then
             itemsByID[item.id] = item
         end
     end
     return itemsByID
+end
+
+local function maybeDeleteOriginalGearHandler(inventory, originalGearBySlot)
+    local itemsByID = getItemsByIDMap(inventory)
+
+    return function(slot)
+        local oldGear = itemsByID[originalGearBySlot[slot]]
+        if not oldGear then
+            settings.debugPrint("No original gear in slot " .. tostring(slot))
+            return
+        end
+        if oldGear.count > 1 then
+            -- don't bother with stacks
+            return
+        end
+        local oldGearRecordID = getRecord(oldGear).id
+        if settings.equipment.upgradeStrategy == "permanent" and oldGear then
+            if itemutil.allowed(oldGearRecordID) then
+                settings.debugPrint("Deleting original gear: " .. oldGearRecordID)
+                oldGear:remove()
+            end
+        end
+    end
 end
 
 ---@param data UpgradeGearData
@@ -158,27 +181,7 @@ local function replaceGear(data)
 
     local inventory = types.Actor.inventory(data.actor)
 
-    local itemsByID = getItemsByIDMap(data.actor)
-
-    local handleOriginalGearInSlot = function(slot)
-        local oldGear = itemsByID[data.originalGear[slot]]
-        if not oldGear then
-            settings.debugPrint("No original gear in slot " .. tostring(slot))
-            return
-        end
-        if slot == types.Actor.EQUIPMENT_SLOT.Ammunition then
-            -- don't delete original ammo
-            return
-        end
-        local oldGearRecordID = getRecord(oldGear).id
-        if settings.equipment.upgradeStrategy == "permanent" and oldGear then
-            if itemutil.allowed(oldGearRecordID) then
-                settings.debugPrint("Deleting original gear from " ..
-                    getRecord(data.actor).id .. ": " .. oldGearRecordID)
-                oldGear:remove()
-            end
-        end
-    end
+    local handleOriginalGearInSlot = maybeDeleteOriginalGearHandler(inventory, data.originalGear)
 
     local replaceWeapon = function(slot)
         local oldItem = types.Actor.getEquipment(data.actor, slot)
@@ -266,28 +269,7 @@ local function improveGear(data)
 
     local inventory = types.Actor.inventory(data.actor)
 
-    local itemsByID = getItemsByIDMap(data.actor)
-
-    --- Delete the original gear, if we're doing a permanent strategy.
-    local handleOriginalGearInSlot = function(slot)
-        local oldGear = itemsByID[data.originalGear[slot]]
-        if not oldGear then
-            settings.debugPrint("No original gear in slot " .. tostring(slot))
-            return
-        end
-        if slot == types.Actor.EQUIPMENT_SLOT.Ammunition then
-            -- don't delete original ammo
-            return
-        end
-        local oldGearRecordID = getRecord(oldGear).id
-        if settings.equipment.upgradeStrategy == "permanent" and oldGear then
-            if itemutil.allowed(oldGearRecordID) then
-                settings.debugPrint("Deleting original gear from " ..
-                    getRecord(data.actor).id .. ": " .. oldGearRecordID)
-                oldGear:remove()
-            end
-        end
-    end
+    local handleOriginalGearInSlot = maybeDeleteOriginalGearHandler(inventory, data.originalGear)
 
     local replaceItem = function(slot)
         local oldItem = types.Actor.getEquipment(data.actor, slot)
