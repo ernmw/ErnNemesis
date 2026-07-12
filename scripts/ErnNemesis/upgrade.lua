@@ -88,12 +88,14 @@ local ARMOR_IMPROVEMENTS = {
 --- and may not be valid across different saves of the same character.
 ---@class Persisted
 ---@field upgradeMap {[string]: string | {[number]: string}}
----@field improvementMap {[string]: WeaponImprovement[] | ArmorImprovement[]}
+---@field weaponImprovementMap {[string]: WeaponImprovement[]}
+---@field armorImprovementMap {[string]: ArmorImprovement[]}
 
 ---@type Persisted
 local persist      = {
     upgradeMap = {},
-    improvementMap = {}
+    weaponImprovementMap = {},
+    armorImprovementMap = {}
 }
 
 
@@ -151,36 +153,36 @@ end
 
 ---Return a random list of improvements, with an even-ish distribution.
 ---@param baseItemRecordID string -- record ID for the un-upgraded item.
----@return WeaponImprovements[]
+---@return WeaponImprovement[]
 local function weaponImprovementsByLevel(baseItemRecordID)
     --- get cached list
-    if persist.improvementMap[baseItemRecordID] then
-        local existing = persist.improvementMap[baseItemRecordID]
+    if persist.weaponImprovementMap[baseItemRecordID] then
+        local existing = persist.weaponImprovementMap[baseItemRecordID]
         if #existing ~= MAX_QUALITY then
             error("missing improvement entries for " .. tostring(baseItemRecordID))
         end
         return existing
     end
     --- build new list
-    local rand = shuffle(ARMOR_IMPROVEMENTS)
+    local rand = shuffle(WEAPON_IMPROVEMENTS)
     while #rand < MAX_QUALITY do
-        for _, v in ipairs(shuffle(ARMOR_IMPROVEMENTS)) do
+        for _, v in ipairs(shuffle(WEAPON_IMPROVEMENTS)) do
             if #rand < MAX_QUALITY then
                 rand[#rand + 1] = v
             end
         end
     end
-    persist.improvementMap[baseItemRecordID] = rand
+    persist.weaponImprovementMap[baseItemRecordID] = rand
     return rand
 end
 
 ---Return a random list of improvements, with an even-ish distribution.
 ---@param baseItemRecordID string -- record ID for the un-upgraded item.
----@return ArmorImprovements[]
+---@return ArmorImprovement[]
 local function armorImprovementsByLevel(baseItemRecordID)
     --- get cached list
-    if persist.improvementMap[baseItemRecordID] then
-        local existing = persist.improvementMap[baseItemRecordID]
+    if persist.armorImprovementMap[baseItemRecordID] then
+        local existing = persist.armorImprovementMap[baseItemRecordID]
         if #existing ~= MAX_QUALITY then
             error("missing improvement entries for " .. tostring(baseItemRecordID))
         end
@@ -195,7 +197,7 @@ local function armorImprovementsByLevel(baseItemRecordID)
             end
         end
     end
-    persist.improvementMap[baseItemRecordID] = rand
+    persist.armorImprovementMap[baseItemRecordID] = rand
     return rand
 end
 
@@ -220,7 +222,7 @@ local armorImprovementOperators = {
 }
 
 ---@type {[WeaponImprovement]: fun(table): table}
-local WeaponImprovementOperators = {
+local weaponImprovementOperators = {
     [WEAPON_IMPROVEMENTS.health] = function(record)
         record.health = math.max(record.health + 10, record.health*1.05)
         return record
@@ -239,6 +241,27 @@ local WeaponImprovementOperators = {
     end,
 }
 
+---this is pretty gross ngl
+---@param baseItemRecord table
+---@return (fun(table): table)[]
+local function improvementModifiers(baseItemRecord)
+    local isArmor = types.Armor.records[baseItemRecord.id] ~= nil
+    local out = {}
+    local fn
+    local map
+    if isArmor then
+        fn = armorImprovementsByLevel
+        map = armorImprovementOperators
+    else
+        fn = weaponImprovementsByLevel
+        map = weaponImprovementOperators
+    end
+    for k, v in fn(baseItemRecord.id) do
+        out[k] = map[v]
+    end
+	return out
+end
+
 ---Returns the new name of an item with an adjective.
 ---@param baseItemRecord table
 ---@param quality number
@@ -250,7 +273,51 @@ local function getNewName(baseItemRecord, quality)
         quality = MAX_QUALITY
     end
 
-    localization("quality"..tostring(quality), {baseItemRecord.name})
+    localization("quality" .. tostring(quality), { baseItemRecord.name })
+end
+
+---comment
+---@param itemRecord table a weapon or armor record
+---@param level number? either a number from 0 to 9, or nil. if nil, will return the next upgrade for the item.
+---@return string?
+local function getUpgradedRecord(itemRecord, level)
+    local upgradeTable = getUpgradeTable(itemRecord.id)
+    if not upgradeTable then
+        -- build new upgrade table
+        upgradeTable = {
+            [0]=itemRecord.id
+        }
+        local lastRecord = itemRecord
+        for lvl, imp in ipairs(improvementModifiers(itemRecord)) do
+            local draft = imp(lastRecord)
+            draft.name = getNewName(itemRecord, lvl)
+            draft.value = itemRecord.value + lvl*10
+            local lastRecord = itemRecord.type.createRecordDraft(draft)
+            if not lastRecord then
+                error("failed to upgrade " .. tostring(itemRecord.id) ..
+                    " to level " .. tostring(lvl))
+                return
+            end
+            upgradeTable[lvl] = lastRecord
+        end
+        setUpgradeTable(itemRecord.id, upgradeTable)
+    end
+    -- get absolute level
+    if level then
+        if level < 0 or level >= MAX_QUALITY then
+            error("invalid level: "..tostring(level))
+        end
+        return upgradeTable[level]
+    end
+    --- find current level
+    local currentLevel = 0
+    for k, v in pairs(upgradeTable) do
+        if v == itemRecord.id then
+            currentLevel = k
+        end
+    end
+    --- return next level
+    return upgradeTable[math.min(MAX_QUALITY,currentLevel+1)]
 end
 
 local function onLoad(data)
@@ -268,6 +335,7 @@ return {
         version = 1,
         getUpgradeTable = getUpgradeTable,
         setUpgradeTable = setUpgradeTable,
+        getUpgradedRecord = getUpgradedRecord,
     },
     engineHandlers = {
         onLoad = onLoad,
