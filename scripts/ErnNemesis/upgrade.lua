@@ -205,19 +205,19 @@ end
 ---@type {[ArmorImprovement]: fun(table): table}
 local armorImprovementOperators = {
     [ARMOR_IMPROVEMENTS.health] = function(record)
-        record.health = math.max(record.health + 10, record.health*1.05)
+        record.health = math.ceil(math.max(record.health + 10, record.health*1.05))
         return record
     end,
     [ARMOR_IMPROVEMENTS.enchantCapacity] = function(record)
-        record.enchantCapacity = record.enchantCapacity + 5
+        record.enchantCapacity = math.ceil(record.enchantCapacity + 5)
         return record
     end,
     [ARMOR_IMPROVEMENTS.weight] = function(record)
-        record.weight = math.max(1, math.min(record.weight - 1, record.weight*.95))
+        record.weight = math.ceil(math.max(1, math.min(record.weight - 1, record.weight*.95)))
         return record
     end,
     [ARMOR_IMPROVEMENTS.baseArmor] = function(record)
-        record.baseArmor = math.max(record.baseArmor + 1, record.baseArmor*1.05)
+        record.baseArmor = math.ceil(math.max(record.baseArmor + 1, record.baseArmor*1.05))
         return record
     end,
 }
@@ -225,15 +225,15 @@ local armorImprovementOperators = {
 ---@type {[WeaponImprovement]: fun(table): table}
 local weaponImprovementOperators = {
     [WEAPON_IMPROVEMENTS.health] = function(record)
-        record.health = math.max(record.health + 10, record.health*1.05)
+        record.health = math.ceil(math.max(record.health + 10, record.health*1.05))
         return record
     end,
     [WEAPON_IMPROVEMENTS.enchantCapacity] = function(record)
-        record.enchantCapacity = record.enchantCapacity + 5
+        record.enchantCapacity = math.ceil(record.enchantCapacity + 5)
         return record
     end,
     [WEAPON_IMPROVEMENTS.weight] = function(record)
-        record.weight = math.max(1, math.min(record.weight - 1, record.weight*.95))
+        record.weight = math.ceil(math.max(1, math.min(record.weight - 1, record.weight*.95)))
         return record
     end,
     [WEAPON_IMPROVEMENTS.speed] = function(record)
