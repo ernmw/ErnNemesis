@@ -18,8 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 local core         = require("openmw.core")
 local types     = require("openmw.types")
 local world        = require("openmw.world")
-local storage        = require("openmw.storage")
-local itemLists    = require("scripts.ErnNemesis.items.load")
+local aux_util = require('openmw_aux.util')
 local shuffle = require("scripts.ErnNemesis.shuffle")
 local settings     = require("scripts.ErnNemesis.settings.settings")
 local MOD_NAME  = require("scripts.ErnNemesis.ns")
@@ -137,6 +136,7 @@ end
 ---@param itemRecordID string
 ---@param newTable UpgradeTable
 local function setUpgradeTable(itemRecordID, newTable)
+    settings.debugPrint("setUpgradeTable(" ..tostring(itemRecordID)..", ".. aux_util.deepToString(newTable, 5) .. ")")
     local baseID = getBaseItemRecordID(itemRecordID) or itemRecordID
     persist.upgradeMap[baseID] = newTable
     -- also register the reverse lookup for every generated level, so that
@@ -202,40 +202,48 @@ end
 ---@type {[ArmorImprovement]: fun(table): table}
 local armorImprovementOperators = {
     [ARMOR_IMPROVEMENTS.health] = function(record)
-        record.health = math.ceil(math.max(record.health + 10, record.health*1.05))
-        return record
+        return {
+        health = math.ceil(math.max(record.health + 10, record.health*1.05))
+        }
     end,
     [ARMOR_IMPROVEMENTS.enchantCapacity] = function(record)
-        record.enchantCapacity = math.ceil(record.enchantCapacity + 5)
-        return record
+        return {
+        enchantCapacity = math.ceil(record.enchantCapacity + 5)
+        }
     end,
     [ARMOR_IMPROVEMENTS.weight] = function(record)
-        record.weight = math.ceil(math.max(1, math.min(record.weight - 1, record.weight*.95)))
-        return record
+        return {
+        weight = math.ceil(math.max(1, math.min(record.weight - 1, record.weight*.95)))
+        }
     end,
     [ARMOR_IMPROVEMENTS.baseArmor] = function(record)
-        record.baseArmor = math.ceil(math.max(record.baseArmor + 1, record.baseArmor*1.05))
-        return record
+        return {
+        baseArmor = math.ceil(math.max(record.baseArmor + 1, record.baseArmor*1.05))
+        }
     end,
 }
 
 ---@type {[WeaponImprovement]: fun(table): table}
 local weaponImprovementOperators = {
     [WEAPON_IMPROVEMENTS.health] = function(record)
-        record.health = math.ceil(math.max(record.health + 10, record.health*1.05))
-        return record
+        return {
+        health = math.ceil(math.max(record.health + 10, record.health*1.05))
+        }
     end,
     [WEAPON_IMPROVEMENTS.enchantCapacity] = function(record)
-        record.enchantCapacity = math.ceil(record.enchantCapacity + 5)
-        return record
+        return {
+        enchantCapacity = math.ceil(record.enchantCapacity + 5)
+        }
     end,
     [WEAPON_IMPROVEMENTS.weight] = function(record)
-        record.weight = math.ceil(math.max(1, math.min(record.weight - 1, record.weight*.95)))
-        return record
+        return {
+        weight = math.ceil(math.max(1, math.min(record.weight - 1, record.weight*.95)))
+        }
     end,
     [WEAPON_IMPROVEMENTS.speed] = function(record)
-        record.speed = record.speed + .05
-        return record
+        return {
+        speed = record.speed + .05
+        }
     end,
 }
 
@@ -291,7 +299,7 @@ local function getNewName(baseItemRecord, quality)
         quality = const.MAX_QUALITY
     end
 
-    return localization("quality" .. tostring(quality), { baseItemRecord.name })
+    return localization("quality" .. tostring(quality), { name=baseItemRecord.name })
 end
 
 ---Returns the current quality level of an item, whether it's the original
@@ -333,11 +341,12 @@ local function getUpgradedRecordID(itemRecord, level)
         local lastRecord = itemRecord
         local recordTypeModule = getRecordTypeModule(itemRecord)
         for lvl, imp in ipairs(improvementModifiers(itemRecord)) do
-            local draft = recordTypeModule.createRecordDraft(lastRecord)
-            draft = imp(draft)
-            draft.name = getNewName(itemRecord, lvl)
-            draft.value = itemRecord.value + lvl*10
-
+            local recFields = imp(lastRecord)
+            recFields.name = getNewName(itemRecord, lvl)
+            recFields.value = itemRecord.value + lvl * 10
+            recFields.template = lastRecord
+            settings.debugPrint("creating new record: " .. aux_util.deepToString(recFields, 5))
+            local draft = recordTypeModule.createRecordDraft(recFields)
             local newRecord = world.createRecord(draft)
             if not newRecord then
                 error("failed to upgrade " .. tostring(itemRecord.id) ..

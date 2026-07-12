@@ -278,6 +278,7 @@ local function improveGear(data)
             local newItemRecordID = interfaces.ErnNemesis_Upgrade.getUpgradedRecordID(oldItemRecord,
                 math.min(data.deltaKills, const.MAX_QUALITY))
             if newItemRecordID and newItemRecordID ~= oldItemRecord.id then
+                settings.debugPrint("Replacing "..tostring(oldItemRecord.name)  .. " with "..tostring(newItemRecordID).. " for "..getRecord(data.actor).id)
                 -- we are doing a replacement
                 local newItemInstance = world.createObject(newItemRecordID)
                 newItemInstance:moveInto(inventory)
