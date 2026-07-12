@@ -25,6 +25,7 @@ local settings     = require("scripts.ErnNemesis.settings.settings")
 local MOD_NAME  = require("scripts.ErnNemesis.ns")
 local localization       = core.l10n(MOD_NAME)
 local const        = require("scripts.ErnNemesis.const")
+local itemutil        = require("scripts.ErnNemesis.itemutil")
 
 
 ---@alias WeaponImprovement
@@ -118,25 +119,6 @@ local function getUpgradeTable(itemRecordID)
 end
 
 ---@param itemRecordID string
----@param newTable UpgradeTable
-local function setUpgradeTable(itemRecordID, newTable)
-    local lookup = persist.upgradeMap[itemRecordID]
-    if not lookup then
-        persist.upgradeMap[itemRecordID] = newTable
-        return
-    end
-    if type(lookup) == "string" then
-        -- this branch happens if itemRecordID was for an upgraded version.
-        -- we need the root ID.
-        lookup = getUpgradeTable(lookup)[0]
-        if not lookup then
-            error("invalid lookup table for " .. tostring(itemRecordID))
-        end
-    end
-    persist.upgradeMap[lookup] = newTable
-end
-
----@param itemRecordID string
 ---@return string?
 local function getBaseItemRecordID(itemRecordID)
     local lookup = persist.upgradeMap[itemRecordID]
@@ -149,6 +131,21 @@ local function getBaseItemRecordID(itemRecordID)
         return lookup
     else
         error("bad type in upgradeMap for "..tostring(itemRecordID))
+    end
+end
+
+---@param itemRecordID string
+---@param newTable UpgradeTable
+local function setUpgradeTable(itemRecordID, newTable)
+    local baseID = getBaseItemRecordID(itemRecordID) or itemRecordID
+    persist.upgradeMap[baseID] = newTable
+    -- also register the reverse lookup for every generated level, so that
+    -- upgrading an already-upgraded item finds its way back to this same
+    -- table instead of being treated as a brand new base item.
+    for level, recordID in pairs(newTable) do
+        if level ~= 0 then
+            persist.upgradeMap[recordID] = baseID
+        end
     end
 end
 
@@ -277,11 +274,36 @@ local function getNewName(baseItemRecord, quality)
     return localization("quality" .. tostring(quality), { baseItemRecord.name })
 end
 
+---Returns the current quality level of an item, whether it's the original
+---(unupgraded) item or one of its generated upgrades.
+---@param itemRecord table a weapon or armor record
+---@return number level -- 0 to const.MAX_QUALITY
+local function getCurrentLevel(itemRecord)
+    local upgradeTable = getUpgradeTable(itemRecord.id)
+    if not upgradeTable then
+        return 0
+    end
+    for k, v in pairs(upgradeTable) do
+        if v == itemRecord.id then
+            return k
+        end
+    end
+    return 0
+end
+
 ---comment
 ---@param itemRecord table a weapon or armor record
 ---@param level number? either a number from 0 to 9, or nil. if nil, will return the next upgrade for the item.
 ---@return string?
 local function getUpgradedRecordID(itemRecord, level)
+    --- Don't generate upgrades for items that aren't in the allowlist (or are
+    --- explicitly blocked). This checks the *base* item, since itemRecord may
+    --- already be a generated upgrade of something on the allowlist.
+    local baseItemRecordID = getBaseItemRecordID(itemRecord.id) or itemRecord.id
+    if not itemutil.allowed(baseItemRecordID) then
+        return itemRecord.id
+    end
+
     local upgradeTable = getUpgradeTable(itemRecord.id)
     if not upgradeTable then
         -- build new upgrade table
@@ -312,15 +334,9 @@ local function getUpgradedRecordID(itemRecord, level)
         end
         return upgradeTable[level]
     end
-    --- find current level
-    local currentLevel = 0
-    for k, v in pairs(upgradeTable) do
-        if v == itemRecord.id then
-            currentLevel = k
-        end
-    end
-    --- return next level
-    return upgradeTable[math.min(const.MAX_QUALITY,currentLevel+1)]
+    --- find current level, then return the next one
+    local currentLevel = getCurrentLevel(itemRecord)
+    return upgradeTable[math.min(const.MAX_QUALITY, currentLevel + 1)]
 end
 
 local function onLoad(data)
@@ -338,6 +354,7 @@ return {
         version = 1,
         getUpgradeTable = getUpgradeTable,
         getUpgradedRecordID = getUpgradedRecordID,
+        getCurrentLevel = getCurrentLevel,
     },
     engineHandlers = {
         onLoad = onLoad,
