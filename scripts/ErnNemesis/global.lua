@@ -137,12 +137,7 @@ local function getItemsByIDMap(actor)
 end
 
 ---@param data UpgradeGearData
-local function onUpgradeGear(data)
-    --- TODO: refactor this so a bunch of it is in a branch,
-    --- conditioned by itemUpgradeType being "allowList" or "allow".
-    --- then add a new branch for "improve" that uses the functions in
-    --- the (MOD_NAME.."_Upgrade") interface to select the next item.
-
+local function replaceGear(data)
     --- 1. delete the old gear
     --- 2. spawn in new gear
     --- 3. get the npc to equip it
@@ -181,7 +176,7 @@ local function onUpgradeGear(data)
         end
     end
 
-    local upgradeWeapon = function(slot)
+    local replaceWeapon = function(slot)
         local oldItem = types.Actor.getEquipment(data.actor, slot)
         if oldItem then
             local oldItemRecord = getRecord(oldItem)
@@ -201,7 +196,7 @@ local function onUpgradeGear(data)
         end
     end
 
-    local upgradeArmor = function(skill, slot)
+    local replaceArmor = function(skill, slot)
         local oldItem = types.Actor.getEquipment(data.actor, slot)
         if oldItem then
             local oldItemRecord = getRecord(oldItem)
@@ -221,8 +216,8 @@ local function onUpgradeGear(data)
     end
 
     if settings.equipment.weaponScaling > 0 then
-        upgradeWeapon(types.Actor.EQUIPMENT_SLOT.CarriedRight)
-        upgradeWeapon(types.Actor.EQUIPMENT_SLOT.Ammunition)
+        replaceWeapon(types.Actor.EQUIPMENT_SLOT.CarriedRight)
+        replaceWeapon(types.Actor.EQUIPMENT_SLOT.Ammunition)
     end
 
     if settings.equipment.armorScaling > 0 and data.armorSkill and data.armorSkill ~= "unarmored" then
@@ -241,11 +236,31 @@ local function onUpgradeGear(data)
             table.insert(slots, types.Actor.EQUIPMENT_SLOT.Boots)
         end
         for _, slot in ipairs(slots) do
-            upgradeArmor(data.armorSkill, slot)
+            replaceArmor(data.armorSkill, slot)
         end
     end
     -- this event needs to be delayed by 1 frame.
     async:newSimulationTimer(0.001, sendGearNotification, { actor = data.actor, newData = newData })
+end
+
+---@param data UpgradeGearData
+local function improveGear(data)
+    --- TODO: this should mirror replaceGear(), but it should
+    --- use the functions in the (MOD_NAME.."_Upgrade") interface to select the next item.
+error("not implemented")
+end
+
+---@param data UpgradeGearData
+local function onUpgradeGear(data)
+    if settings.equipment.itemUpgradeType == const.UPGRADE_ALL or settings.equipment.itemUpgradeType == const.UPGRADE_ALLOWLIST then
+        replaceGear(data)
+    elseif settings.equipment.itemUpgradeType == const.UPGRADE_IMPROVE then
+        improveGear(data)
+    elseif settings.equipment.itemUpgradeType == const.UPGRADE_DISABLED then
+        settings.debugPrint("gear upgrade disabled")
+    else
+        error("unhandled value for 'itemUpgradeType': "..tostring(settings.equipment.itemUpgradeType))
+    end
 end
 
 local function onDeleteItems(data)
