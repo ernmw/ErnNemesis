@@ -25,6 +25,7 @@ local core    = require('openmw.core')
 local aux_util = require('openmw_aux.util')
 local settings = require("scripts.ErnNemesis.settings.settings")
 local itemutil = require("scripts.ErnNemesis.itemutil")
+local interfaces = require('openmw.interfaces')
 
 local function getRecord(obj)
     return obj.type.record(obj)
@@ -137,6 +138,11 @@ end
 
 ---@param data UpgradeGearData
 local function onUpgradeGear(data)
+    --- TODO: refactor this so a bunch of it is in a branch,
+    --- conditioned by itemUpgradeType being "allowList" or "allow".
+    --- then add a new branch for "improve" that uses the functions in
+    --- the (MOD_NAME.."_Upgrade") interface to select the next item.
+
     --- 1. delete the old gear
     --- 2. spawn in new gear
     --- 3. get the npc to equip it

@@ -19,7 +19,7 @@ local core         = require("openmw.core")
 local types     = require("openmw.types")
 local itemLists = require("scripts.ErnNemesis.items.load")
 local const = require("scripts.ErnNemesis.const")
-local settings     = require("scripts.ErnNemesis.settings.settings")
+local settings  = require("scripts.ErnNemesis.settings.settings")
 
 ---Performs a binary search on a list sorted in ascending order by valueFn,
 ---returning the index at which an item with the given score should be inserted.
