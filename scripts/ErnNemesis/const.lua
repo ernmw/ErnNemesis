@@ -18,5 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 return {
     NEMESIS_SPELL_1 = "ErnNemesis1",
-    NEMESIS_KILLED_GVAR = "x32_ErnNemesisKilled"
+    NEMESIS_KILLED_GVAR = "x32_ErnNemesisKilled",
+    MAX_NEGLECT_BONUS = 5,
+    MAX_QUALITY = 9
 }

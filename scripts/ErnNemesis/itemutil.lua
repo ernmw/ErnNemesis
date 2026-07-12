@@ -223,6 +223,8 @@ local function getArmorWithScore(skill, slot, score)
     return armorBySlotBySkill[skill][slot][idx]
 end
 
+--- this determines if an original item is allowed to be upgraded.
+--- that's why it ignores the ignoreItemAllowlist setting
 local function allowed(recordID)
     return (itemLists.allow[recordID:lower()]) and (not itemLists.block[recordID:lower()])
 end

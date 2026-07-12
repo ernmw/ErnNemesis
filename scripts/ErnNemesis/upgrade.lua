@@ -23,8 +23,8 @@ local shuffle = require("scripts.ErnNemesis.shuffle")
 local settings     = require("scripts.ErnNemesis.settings.settings")
 local MOD_NAME  = require("scripts.ErnNemesis.ns")
 local localization       = core.l10n(MOD_NAME)
+local const        = require("scripts.ErnNemesis.const")
 
-local MAX_QUALITY = 9
 
 ---@alias WeaponImprovement
 ---| 1 -- health
@@ -158,16 +158,16 @@ local function weaponImprovementsByLevel(baseItemRecordID)
     --- get cached list
     if persist.weaponImprovementMap[baseItemRecordID] then
         local existing = persist.weaponImprovementMap[baseItemRecordID]
-        if #existing ~= MAX_QUALITY then
+        if #existing ~= const.MAX_QUALITY then
             error("missing improvement entries for " .. tostring(baseItemRecordID))
         end
         return existing
     end
     --- build new list
     local rand = shuffle(WEAPON_IMPROVEMENTS)
-    while #rand < MAX_QUALITY do
+    while #rand < const.MAX_QUALITY do
         for _, v in ipairs(shuffle(WEAPON_IMPROVEMENTS)) do
-            if #rand < MAX_QUALITY then
+            if #rand < const.MAX_QUALITY then
                 rand[#rand + 1] = v
             end
         end
@@ -183,16 +183,16 @@ local function armorImprovementsByLevel(baseItemRecordID)
     --- get cached list
     if persist.armorImprovementMap[baseItemRecordID] then
         local existing = persist.armorImprovementMap[baseItemRecordID]
-        if #existing ~= MAX_QUALITY then
+        if #existing ~= const.MAX_QUALITY then
             error("missing improvement entries for " .. tostring(baseItemRecordID))
         end
         return existing
     end
     --- build new list
     local rand = shuffle(ARMOR_IMPROVEMENTS)
-    while #rand < MAX_QUALITY do
+    while #rand < const.MAX_QUALITY do
         for _, v in ipairs(shuffle(ARMOR_IMPROVEMENTS)) do
-            if #rand < MAX_QUALITY then
+            if #rand < const.MAX_QUALITY then
                 rand[#rand + 1] = v
             end
         end
@@ -269,11 +269,11 @@ local function getNewName(baseItemRecord, quality)
     if quality < 1 then
         return baseItemRecord.name
     end
-    if quality > MAX_QUALITY then
-        quality = MAX_QUALITY
+    if quality > const.MAX_QUALITY then
+        quality = const.MAX_QUALITY
     end
 
-    localization("quality" .. tostring(quality), { baseItemRecord.name })
+    return localization("quality" .. tostring(quality), { baseItemRecord.name })
 end
 
 ---comment
@@ -292,7 +292,7 @@ local function getUpgradedRecord(itemRecord, level)
             local draft = imp(lastRecord)
             draft.name = getNewName(itemRecord, lvl)
             draft.value = itemRecord.value + lvl*10
-            local lastRecord = itemRecord.type.createRecordDraft(draft)
+            lastRecord = itemRecord.type.createRecordDraft(draft)
             if not lastRecord then
                 error("failed to upgrade " .. tostring(itemRecord.id) ..
                     " to level " .. tostring(lvl))
@@ -304,7 +304,7 @@ local function getUpgradedRecord(itemRecord, level)
     end
     -- get absolute level
     if level then
-        if level < 0 or level >= MAX_QUALITY then
+        if level < 0 or level >= const.MAX_QUALITY then
             error("invalid level: "..tostring(level))
         end
         return upgradeTable[level]
@@ -317,7 +317,7 @@ local function getUpgradedRecord(itemRecord, level)
         end
     end
     --- return next level
-    return upgradeTable[math.min(MAX_QUALITY,currentLevel+1)]
+    return upgradeTable[math.min(const.MAX_QUALITY,currentLevel+1)]
 end
 
 local function onLoad(data)
@@ -334,7 +334,6 @@ return {
     interface = {
         version = 1,
         getUpgradeTable = getUpgradeTable,
-        setUpgradeTable = setUpgradeTable,
         getUpgradedRecord = getUpgradedRecord,
     },
     engineHandlers = {
