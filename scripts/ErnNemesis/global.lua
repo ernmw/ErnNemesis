@@ -143,7 +143,7 @@ local function replaceGear(data)
     --- 3. get the npc to equip it
     itemutil.build()
 
-    settings.debugPrint("Upgrading gear for " .. getRecord(data.actor).id .. ": " .. aux_util.deepToString(data, 3))
+    settings.debugPrint("Replacing gear for " .. getRecord(data.actor).id .. ": " .. aux_util.deepToString(data, 3))
 
     -- delete old items
     for _, item in pairs(data.oldGear) do
@@ -164,6 +164,10 @@ local function replaceGear(data)
         local oldGear = itemsByID[data.originalGear[slot]]
         if not oldGear then
             settings.debugPrint("No original gear in slot " .. tostring(slot))
+            return
+        end
+        if slot == types.Actor.EQUIPMENT_SLOT.Ammunition then
+            -- don't delete original ammo
             return
         end
         local oldGearRecordID = getRecord(oldGear).id
@@ -247,7 +251,85 @@ end
 local function improveGear(data)
     --- TODO: this should mirror replaceGear(), but it should
     --- use the functions in the (MOD_NAME.."_Upgrade") interface to select the next item.
-error("not implemented")
+    settings.debugPrint("Improving gear for " .. getRecord(data.actor).id .. ": " .. aux_util.deepToString(data, 3))
+
+    -- delete old items
+    for _, item in pairs(data.oldGear) do
+        item:remove()
+    end
+
+    ---@type UpgradeGearCompletedData
+    local newData = {
+        newItemsBySlot = {},
+        newConsumableIDs = {},
+    }
+
+    local inventory = types.Actor.inventory(data.actor)
+
+    local itemsByID = getItemsByIDMap(data.actor)
+
+    --- Delete the original gear, if we're doing a permanent strategy.
+    local handleOriginalGearInSlot = function(slot)
+        local oldGear = itemsByID[data.originalGear[slot]]
+        if not oldGear then
+            settings.debugPrint("No original gear in slot " .. tostring(slot))
+            return
+        end
+        if slot == types.Actor.EQUIPMENT_SLOT.Ammunition then
+            -- don't delete original ammo
+            return
+        end
+        local oldGearRecordID = getRecord(oldGear).id
+        if settings.equipment.upgradeStrategy == "permanent" and oldGear then
+            if itemutil.allowed(oldGearRecordID) then
+                settings.debugPrint("Deleting original gear from " ..
+                    getRecord(data.actor).id .. ": " .. oldGearRecordID)
+                oldGear:remove()
+            end
+        end
+    end
+
+    local replaceItem = function(slot)
+        local oldItem = types.Actor.getEquipment(data.actor, slot)
+        if oldItem then
+            local oldItemRecord = getRecord(oldItem)
+            local newItemRecordID = interfaces.ErnNemesis_Upgrade.getUpgradedRecordID(oldItemRecord,
+                math.min(data.deltaKills, const.MAX_QUALITY))
+            if newItemRecordID and newItemRecordID ~= oldItemRecord.id then
+                -- we are doing a replacement
+                local newItemInstance = world.createObject(newItemRecordID)
+                newItemInstance:moveInto(inventory)
+                newData.newItemsBySlot[slot] = newItemInstance
+                handleOriginalGearInSlot(slot)
+            end
+        end
+    end
+
+    if settings.equipment.weaponScaling > 0 then
+        replaceItem(types.Actor.EQUIPMENT_SLOT.CarriedRight)
+        -- don't improve ammo
+        --replaceItem(types.Actor.EQUIPMENT_SLOT.Ammunition)
+    end
+
+    if settings.equipment.armorScaling > 0 and data.armorSkill and data.armorSkill ~= "unarmored" then
+        local slots = {
+            types.Actor.EQUIPMENT_SLOT.Cuirass,
+            types.Actor.EQUIPMENT_SLOT.Greaves,
+            types.Actor.EQUIPMENT_SLOT.LeftPauldron,
+            types.Actor.EQUIPMENT_SLOT.RightPauldron,
+            types.Actor.EQUIPMENT_SLOT.LeftGauntlet,
+            types.Actor.EQUIPMENT_SLOT.RightGauntlet,
+            types.Actor.EQUIPMENT_SLOT.CarriedLeft,
+            --- improving armor is beast-safe.
+            types.Actor.EQUIPMENT_SLOT.Helmet,
+            types.Actor.EQUIPMENT_SLOT.Boots,
+        }
+        for _, slot in ipairs(slots) do
+            replaceItem(slot)
+        end
+    end
+    -- this event needs to be delayed by 1 frame.
+    async:newSimulationTimer(0.001, sendGearNotification, { actor = data.actor, newData = newData })
 end
 
 ---@param data UpgradeGearData
