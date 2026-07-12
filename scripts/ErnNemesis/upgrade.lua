@@ -26,6 +26,36 @@ local localization       = core.l10n(MOD_NAME)
 
 local MAX_QUALITY = 9
 
+---@alias WeaponImprovement
+---| 1 -- health
+---| 2 -- enchantCapacity
+---| 3 -- weight
+---| 4 -- speed
+---| 5 -- maxDamage
+
+---@enum WeaponImprovements
+local WEAPON_IMPROVEMENTS = {
+    health = 1,
+    enchantCapacity = 2,
+    weight = 3,
+    speed = 4,
+    maxDamage = 5,
+}
+
+---@alias ArmorImprovement
+---| 1 -- health
+---| 2 -- enchantCapacity
+---| 3 -- weight
+---| 4 -- baseArmor
+
+---@enum ArmorImprovements
+local ARMOR_IMPROVEMENTS = {
+    health = 1,
+    enchantCapacity = 2,
+    weight = 3,
+    baseArmor = 4,
+}
+
 --- This tracks records for "improved" items, which are dynamically generated records
 --- that clone items in the allowlist and tweak them to be stronger.
 --- This list is generated lazilly.
@@ -58,7 +88,7 @@ local MAX_QUALITY = 9
 --- and may not be valid across different saves of the same character.
 ---@class Persisted
 ---@field upgradeMap {[string]: string | {[number]: string}}
----@field improvementMap {[string]: number}
+---@field improvementMap {[string]: WeaponImprovement[] | ArmorImprovement[]}
 
 ---@type Persisted
 local persist      = {
@@ -103,39 +133,111 @@ local function setUpgradeTable(itemRecordID, newTable)
     persist.upgradeMap[lookup] = newTable
 end
 
----@enum WeaponImprovements
-local WEAPON_IMPROVEMENTS = {
-    health = 1,
-    enchantCapacity = 2,
-    weight = 3,
-    speed = 5,
-    maxDamage = 6,
-}
-
----@enum ArmorImprovements
-local ARMOR_IMPROVEMENTS = {
-    health = 1,
-    enchantCapacity = 2,
-    weight = 3,
-    speed = 4,
-}
-
+---@param itemRecordID string
+---@return string?
+local function getBaseItemRecordID(itemRecordID)
+    local lookup = persist.upgradeMap[itemRecordID]
+    if not lookup then
+        return nil
+    end
+    if type(lookup) == "table" then
+        return itemRecordID
+    elseif type(lookup) == "string" then
+        return lookup
+    else
+        error("bad type in upgradeMap for "..tostring(itemRecordID))
+    end
+end
 
 ---Return a random list of improvements, with an even-ish distribution.
----TODO: This isn't stable for a given baseItemRecordID; it must be preserved. use persist table as cache
----@param baseItemRecordID string
+---@param baseItemRecordID string -- record ID for the un-upgraded item.
 ---@return WeaponImprovements[]
 local function weaponImprovementsByLevel(baseItemRecordID)
+    --- get cached list
+    if persist.improvementMap[baseItemRecordID] then
+        local existing = persist.improvementMap[baseItemRecordID]
+        if #existing ~= MAX_QUALITY then
+            error("missing improvement entries for " .. tostring(baseItemRecordID))
+        end
+        return existing
+    end
+    --- build new list
     local rand = shuffle(ARMOR_IMPROVEMENTS)
     while #rand < MAX_QUALITY do
         for _, v in ipairs(shuffle(ARMOR_IMPROVEMENTS)) do
             if #rand < MAX_QUALITY then
-                rand[#rand +1] = v
+                rand[#rand + 1] = v
             end
         end
     end
+    persist.improvementMap[baseItemRecordID] = rand
     return rand
 end
+
+---Return a random list of improvements, with an even-ish distribution.
+---@param baseItemRecordID string -- record ID for the un-upgraded item.
+---@return ArmorImprovements[]
+local function armorImprovementsByLevel(baseItemRecordID)
+    --- get cached list
+    if persist.improvementMap[baseItemRecordID] then
+        local existing = persist.improvementMap[baseItemRecordID]
+        if #existing ~= MAX_QUALITY then
+            error("missing improvement entries for " .. tostring(baseItemRecordID))
+        end
+        return existing
+    end
+    --- build new list
+    local rand = shuffle(ARMOR_IMPROVEMENTS)
+    while #rand < MAX_QUALITY do
+        for _, v in ipairs(shuffle(ARMOR_IMPROVEMENTS)) do
+            if #rand < MAX_QUALITY then
+                rand[#rand + 1] = v
+            end
+        end
+    end
+    persist.improvementMap[baseItemRecordID] = rand
+    return rand
+end
+
+---@type {[ArmorImprovement]: fun(table): table}
+local armorImprovementOperators = {
+    [ARMOR_IMPROVEMENTS.health] = function(record)
+        record.health = math.max(record.health + 10, record.health*1.05)
+        return record
+    end,
+    [ARMOR_IMPROVEMENTS.enchantCapacity] = function(record)
+        record.enchantCapacity = record.enchantCapacity + 5
+        return record
+    end,
+    [ARMOR_IMPROVEMENTS.weight] = function(record)
+        record.weight = math.max(1, math.min(record.weight - 1, record.weight*.95))
+        return record
+    end,
+    [ARMOR_IMPROVEMENTS.baseArmor] = function(record)
+        record.baseArmor = math.max(record.baseArmor + 1, record.health*1.05)
+        return record
+    end,
+}
+
+---@type {[WeaponImprovement]: fun(table): table}
+local WeaponImprovementOperators = {
+    [WEAPON_IMPROVEMENTS.health] = function(record)
+        record.health = math.max(record.health + 10, record.health*1.05)
+        return record
+    end,
+    [WEAPON_IMPROVEMENTS.enchantCapacity] = function(record)
+        record.enchantCapacity = record.enchantCapacity + 5
+        return record
+    end,
+    [WEAPON_IMPROVEMENTS.weight] = function(record)
+        record.weight = math.max(1, math.min(record.weight - 1, record.weight*.95))
+        return record
+    end,
+    [WEAPON_IMPROVEMENTS.speed] = function(record)
+        record.speed = record.speed + .05
+        return record
+    end,
+}
 
 ---Returns the new name of an item with an adjective.
 ---@param baseItemRecord table
