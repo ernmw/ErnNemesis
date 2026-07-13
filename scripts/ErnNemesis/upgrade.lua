@@ -245,6 +245,13 @@ local weaponImprovementOperators = {
         speed = record.speed + .05
         }
     end,
+    [WEAPON_IMPROVEMENTS.maxDamage] = function(record)
+        return {
+            chopMaxDamage = record.chopMaxDamage + 1,
+            slashMaxDamage = record.slashMaxDamage + 1,
+            thrustMaxDamage = record.thrustMaxDamage + 1,
+        }
+    end,
 }
 
 ---Returns true if the given record is an Armor record (as opposed to a Weapon record).
