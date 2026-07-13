@@ -340,7 +340,7 @@ local function getUpgradedRecordID(itemRecord, level)
         }
         local lastRecord = itemRecord
         local recordTypeModule = getRecordTypeModule(itemRecord)
-        for lvl, imp in ipairs(improvementModifiers(itemRecord)) do
+        for lvl, imp in pairs(improvementModifiers(itemRecord)) do
             local recFields = imp(lastRecord)
             recFields.name = getNewName(itemRecord, lvl)
             recFields.value = itemRecord.value + lvl * 10

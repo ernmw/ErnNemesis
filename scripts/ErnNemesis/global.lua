@@ -111,12 +111,6 @@ local function onPlayerDied(data)
     nemesisTimeData:set(key, snapshotTime)
 end
 
-local function onClearState()
-    settings.debugPrint("Global onClearState.")
-    nemesisKillCountData:reset()
-end
-
-
 local sendGearNotification = async:registerTimerCallback('sendGearNotification', function(data)
     data.actor:sendEvent(MOD_NAME .. "onUpgradeGearCompleted", data.newData)
     settings.debugPrint("Nemesis gear for " .. getRecord(data.actor).id .. ": " .. aux_util.deepToString(data.newData, 3))
@@ -341,11 +335,31 @@ local function onNemesisKilled(data)
     settings.debugPrint("Nemesis revenge count for " .. playerName .. ": "..tostring(gvs[const.NEMESIS_KILLED_GVAR]))
 end
 
+local function onClearState()
+    settings.debugPrint("Global onClearState.")
+    nemesisKillCountData:reset()
+end
+
+local function onImproveTest(data)
+    settings.debugPrint("Global onImproveTest.")
+    -- player and item
+    local oldItemRecord = getRecord(data.item)
+    local newItemRecordID = interfaces.ErnNemesis_Upgrade.getUpgradedRecordID(oldItemRecord)
+    if newItemRecordID and newItemRecordID ~= oldItemRecord.id then
+        settings.debugPrint("Replacing "..tostring(oldItemRecord.name)  .. " with "..tostring(newItemRecordID).. " for "..getRecord(data.actor).id)
+        -- we are doing a replacement
+        local newItemInstance = world.createObject(newItemRecordID)
+        local inventory = types.Actor.inventory(data.actor)
+        newItemInstance:moveInto(inventory)
+    end
+end
+
 return {
     eventHandlers = {
         [MOD_NAME .. "onActive"] = onActive,
         [MOD_NAME .. "onPlayerDied"] = onPlayerDied,
         [MOD_NAME .. "onClearState"] = onClearState,
+        [MOD_NAME .. "onImproveTest"] = onImproveTest,
         [MOD_NAME .. "onUpgradeGear"] = onUpgradeGear,
         [MOD_NAME .. "onDeleteItems"] = onDeleteItems,
         [MOD_NAME .. "onNemesisKilled"] = onNemesisKilled,

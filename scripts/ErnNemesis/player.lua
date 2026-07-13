@@ -80,6 +80,15 @@ local function onConsoleCommand(mode, command, selectedObject)
         core.sendGlobalEvent(MOD_NAME .. "onClearState", {
             player = pself.object,
         })
+    elseif command:lower() == "lua nemesis improve" then
+        if (not selectedObject) or (not selectedObject:isValid()) then
+            error("no object selected")
+            return
+        end
+            core.sendGlobalEvent(MOD_NAME .. "onImproveTest", {
+                player = pself.object,
+                item = selectedObject,
+            })
     end
 end
 
