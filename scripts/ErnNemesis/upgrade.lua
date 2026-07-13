@@ -208,7 +208,7 @@ local armorImprovementOperators = {
     end,
     [ARMOR_IMPROVEMENTS.enchantCapacity] = function(record)
         return {
-        enchantCapacity = math.ceil(record.enchantCapacity + 5)
+        enchantCapacity = math.ceil(record.enchantCapacity + 3)
         }
     end,
     [ARMOR_IMPROVEMENTS.weight] = function(record)
@@ -232,17 +232,20 @@ local weaponImprovementOperators = {
     end,
     [WEAPON_IMPROVEMENTS.enchantCapacity] = function(record)
         return {
-        enchantCapacity = math.ceil(record.enchantCapacity + 5)
+        enchantCapacity = math.ceil(record.enchantCapacity + 3)
         }
     end,
     [WEAPON_IMPROVEMENTS.weight] = function(record)
         return {
-        weight = math.ceil(math.max(1, math.min(record.weight - 1, record.weight*.95)))
+        weight = math.ceil(math.max(0.5, math.min(record.weight - 1, record.weight*.95)))
         }
     end,
     [WEAPON_IMPROVEMENTS.speed] = function(record)
+        --round up to nearest 0.05
+        local speed = record.speed + .05
+        speed = math.ceil(speed / 0.05) * 0.05
         return {
-        speed = record.speed + .05
+        speed = speed
         }
     end,
     [WEAPON_IMPROVEMENTS.maxDamage] = function(record)
