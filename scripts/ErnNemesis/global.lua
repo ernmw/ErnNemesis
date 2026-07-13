@@ -346,10 +346,10 @@ local function onImproveTest(data)
     local oldItemRecord = getRecord(data.item)
     local newItemRecordID = interfaces.ErnNemesis_Upgrade.getUpgradedRecordID(oldItemRecord)
     if newItemRecordID and newItemRecordID ~= oldItemRecord.id then
-        settings.debugPrint("Replacing "..tostring(oldItemRecord.name)  .. " with "..tostring(newItemRecordID).. " for "..getRecord(data.actor).id)
+        settings.debugPrint("Replacing "..tostring(oldItemRecord.name)  .. " with "..tostring(newItemRecordID).. " for "..getRecord(data.player).id)
         -- we are doing a replacement
         local newItemInstance = world.createObject(newItemRecordID)
-        local inventory = types.Actor.inventory(data.actor)
+        local inventory = types.Actor.inventory(data.player)
         newItemInstance:moveInto(inventory)
     end
 end
