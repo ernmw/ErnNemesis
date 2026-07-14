@@ -77,7 +77,7 @@ local function onActive(data)
     if lastKillTime > 0 and settings.gameplay.neglectDayPenalty > 0 then
         local denominator = (60 * 60 * 24 * settings.gameplay.neglectDayPenalty)
         neglectBonus = math.floor((core.getGameTime() - lastKillTime) / denominator)
-        neglectBonus = math.min(const.MAX_NEGLECT_BONUS, neglectBonus)
+        neglectBonus = math.max(0, math.min(const.MAX_NEGLECT_BONUS, neglectBonus))
     end
 
     data.restoredLastKillTime = lastKillTime

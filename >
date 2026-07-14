@@ -1,0 +1,141 @@
+[17:57:05.946 I] Global[scripts/ernnemesis/global.lua]: DEBUG: Loaded 6295 items into blocklist.
+[17:57:05.980 I] Global[scripts/distant-fixes/global.lua]:      [DistantFixes]: Enabling support for: Bloodmoon (Bloodmoon.esm)
+[17:57:05.980 I] Global[scripts/distant-fixes/global.lua]:      [DistantFixes]: Enabling support for: Morrowind (Ghostgate) (Morrowind.esm)
+[17:57:05.981 I] Global[scripts/distant-fixes/global.lua]:      [DistantFixes]: Enabling support for: Morrowind (Hlaalu Faction) (Morrowind.esm)
+[17:57:05.981 I] Global[scripts/distant-fixes/global.lua]:      [DistantFixes]: Enabling support for: Morrowind (Redoran Faction) (Morrowind.esm)
+[17:57:05.982 I] Global[scripts/distant-fixes/global.lua]:      [DistantFixes]: Enabling support for: Morrowind (Telvanni Faction) (Morrowind.esm)
+[17:57:05.995 I] Global[scripts/ernslowmagickaregen/global.lua]:        init settings start
+[17:57:05.996 I] Global[scripts/ernslowmagickaregen/global.lua]:        init settings done
+[17:57:06.000 I] Global[scripts/bullseye/global.lua]:   [Bullseye] Loaded config: scripts/bullseye/headshotconfig/oaab_data.yaml
+[17:57:06.000 I] Global[scripts/bullseye/global.lua]:   [Bullseye] Loaded config: scripts/bullseye/headshotconfig/tamriel_data.yaml
+[17:57:06.001 I] Global[scripts/bullseye/global.lua]:   [Bullseye] Loaded config: scripts/bullseye/headshotconfig/vanilla.yaml
+[17:57:06.669 I] Global[scripts/ernnemesis/global.lua]: DEBUG: onActive for foryn gilnith: table: 0x7fc0915be1c8 {
+[17:57:06.669 I]   lastKillGameTime = 0,
+[17:57:06.669 I]   kills = 0,
+[17:57:06.669 I]   restoredKills = 1,
+[17:57:06.669 I]   restoredLastKillTime = 120423.89259338,
+[17:57:06.669 I]   actor = object0x101f899 (NPC, "foryn gilnith"),
+[17:57:06.669 I] }
+[17:57:06.674 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith has killed the player 1 total times, up from 0 times. Neglect bonus: -1
+[17:57:06.674 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith health increased by 0
+[17:57:06.674 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith magicka increased by 0
+[17:57:06.674 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith fatigue increased by 0
+[17:57:06.674 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith endurance increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith personality increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith luck increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith speed increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith strength increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith intelligence increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith willpower increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith agility increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith shortblade increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith mercantile increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith speechcraft increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith athletics increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith security increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith block increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith unarmored increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith sneak increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith acrobatics increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith handtohand increased by 0
+[17:57:06.675 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: Foryn Gilnith leveled up to 11
+[17:57:06.700 I] Global[scripts/ernnemesis/global.lua]: DEBUG: Improving gear for foryn gilnith: table: 0x7fc090641610 {
+[17:57:06.700 I]   deltaKills = 0,
+[17:57:06.700 I]   armorSkill = lightarmor,
+[17:57:06.700 I]   originalGear = table: 0x7fc090641690 {
+[17:57:06.700 I]     7 = @0x498,
+[17:57:06.700 I]     8 = @0x497,
+[17:57:06.700 I]     9 = @0x499,
+[17:57:06.700 I]     15 = @0x496,
+[17:57:06.700 I]     16 = @0x495,
+[17:57:06.700 I]   },
+[17:57:06.700 I]   oldGear = table: 0x7fc090641870 {
+[17:57:06.700 I]   },
+[17:57:06.700 I]   actor = object0x101f899 (NPC, "foryn gilnith"),
+[17:57:06.700 I] }
+[17:57:06.700 I] Global[scripts/ernnemesis/upgrade.lua]:        DEBUG: creating new record: table: 0x7fc090644120 {
+[17:57:06.700 I]   template = ESM3_Weapon["steel shortsword"],
+[17:57:06.700 I]   name = Tempered Steel Shortsword,
+[17:57:06.700 I]   value = 50,
+[17:57:06.700 I]   enchantCapacity = 7,
+[17:57:06.700 I] }
+[17:57:06.700 I] Global[scripts/ernnemesis/upgrade.lua]:        DEBUG: creating new record: table: 0x7fc090644ea0 {
+[17:57:06.700 I]   template = ESM3_Weapon[Generated:0x143],
+[17:57:06.700 I]   name = Refined Steel Shortsword,
+[17:57:06.700 I]   chopMaxDamage = 13,
+[17:57:06.700 I]   slashMaxDamage = 13,
+[17:57:06.700 I]   value = 60,
+[17:57:06.700 I]   thrustMaxDamage = 13,
+[17:57:06.700 I] }
+[17:57:06.700 I] Global[scripts/ernnemesis/upgrade.lua]:        DEBUG: creating new record: table: 0x7fc090645e50 {
+[17:57:06.700 I]   template = ESM3_Weapon[Generated:0x144],
+[17:57:06.700 I]   name = Superior Steel Shortsword,
+[17:57:06.700 I]   value = 70,
+[17:57:06.700 I]   health = 788,
+[17:57:06.700 I] }
+[17:57:06.700 I] Global[scripts/ernnemesis/upgrade.lua]:        DEBUG: creating new record: table: 0x7fc090646b18 {
+[17:57:06.700 I]   template = ESM3_Weapon[Generated:0x145],
+[17:57:06.700 I]   name = Masterwork Steel Shortsword,
+[17:57:06.700 I]   value = 80,
+[17:57:06.700 I]   speed = 2.05,
+[17:57:06.700 I] }
+[17:57:06.701 I] Global[scripts/ernnemesis/upgrade.lua]:        DEBUG: creating new record: table: 0x7fc0932599b8 {
+[17:57:06.701 I]   template = ESM3_Weapon[Generated:0x146],
+[17:57:06.701 I]   name = Exquisite Steel Shortsword,
+[17:57:06.701 I]   value = 90,
+[17:57:06.701 I]   weight = 7,
+[17:57:06.701 I] }
+[17:57:06.701 I] Global[scripts/ernnemesis/upgrade.lua]:        DEBUG: creating new record: table: 0x7fc09325a698 {
+[17:57:06.701 I]   template = ESM3_Weapon[Generated:0x147],
+[17:57:06.701 I]   name = Grand Steel Shortsword,
+[17:57:06.701 I]   chopMaxDamage = 14,
+[17:57:06.701 I]   slashMaxDamage = 14,
+[17:57:06.701 I]   value = 100,
+[17:57:06.701 I]   thrustMaxDamage = 14,
+[17:57:06.701 I] }
+[17:57:06.701 I] Global[scripts/ernnemesis/upgrade.lua]:        DEBUG: creating new record: table: 0x7fc09325b610 {
+[17:57:06.701 I]   template = ESM3_Weapon[Generated:0x148],
+[17:57:06.701 I]   name = Peerless Steel Shortsword,
+[17:57:06.701 I]   value = 110,
+[17:57:06.701 I]   weight = 6,
+[17:57:06.701 I] }
+[17:57:06.701 I] Global[scripts/ernnemesis/upgrade.lua]:        DEBUG: creating new record: table: 0x7fc09325c2a0 {
+[17:57:06.701 I]   template = ESM3_Weapon[Generated:0x149],
+[17:57:06.701 I]   name = Legendary Steel Shortsword,
+[17:57:06.701 I]   value = 120,
+[17:57:06.701 I]   health = 828,
+[17:57:06.701 I] }
+[17:57:06.701 I] Global[scripts/ernnemesis/upgrade.lua]:        DEBUG: creating new record: table: 0x7fc09325cf40 {
+[17:57:06.701 I]   template = ESM3_Weapon[Generated:0x14a],
+[17:57:06.701 I]   name = Ascendant Steel Shortsword,
+[17:57:06.701 I]   value = 130,
+[17:57:06.701 I]   speed = 2.1,
+[17:57:06.701 I] }
+[17:57:06.701 I] Global[scripts/ernnemesis/upgrade.lua]:        DEBUG: setUpgradeTable(steel shortsword, table: 0x7fc0906432f0 {
+[17:57:06.701 I]   0 = steel shortsword,
+[17:57:06.701 I]   1 = Generated:0x143,
+[17:57:06.701 I]   2 = Generated:0x144,
+[17:57:06.701 I]   3 = Generated:0x145,
+[17:57:06.701 I]   4 = Generated:0x146,
+[17:57:06.701 I]   5 = Generated:0x147,
+[17:57:06.701 I]   6 = Generated:0x148,
+[17:57:06.701 I]   7 = Generated:0x149,
+[17:57:06.701 I]   8 = Generated:0x14a,
+[17:57:06.701 I]   9 = Generated:0x14b,
+[17:57:06.701 I] })
+[17:57:06.708 I] Global[scripts/ernnemesis/global.lua]: DEBUG: Nemesis gear for foryn gilnith: table: 0x7fc090642e50 {
+[17:57:06.708 I]   newItemsBySlot = table: 0x7fc090642ed0 {
+[17:57:06.708 I]   },
+[17:57:06.708 I]   newConsumableIDs = table: 0x7fc090642f18 {
+[17:57:06.708 I]   },
+[17:57:06.708 I] }
+[17:57:06.725 I] L0x101f899[scripts/ernnemesis/actor.lua]:      DEBUG: onUpgradeGearCompleted for foryn gilnith: table: 0x7fc090dac6c8 {
+[17:57:06.725 I]   newConsumableIDs = table: 0x7fc090dac790 {
+[17:57:06.725 I]   },
+[17:57:06.725 I]   newItemsBySlot = table: 0x7fc090dac710 {
+[17:57:06.725 I]   },
+[17:57:06.725 I] }
+[17:57:07.334 I] L@0x1[scripts/s3/music/core.lua]:      [ S3MAPHORE ]: 39 playlists loaded. Ready to play music!
+[17:57:07.335 I] Playing "music/explore/mx_explore_7.mp3"
+
+when i check the inventory, foryn gilnith does not have an upgraded sword
